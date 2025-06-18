@@ -1,7 +1,6 @@
 import {
-    Menu, X, Home, Users, Calendar,
-    FileText, Settings, User, Heart, Activity,
-    Clipboard as ClipboardIcon // 👈 fix here
+    Home, Calendar, Settings, LogOut, Info, Clipboard as ClipboardIcon
+
 } from 'lucide-react'
 
 
@@ -10,41 +9,45 @@ import {
 
 
 export const admin = [
-    { icon: Home, label: 'Главная', path: '/admin/' },
-    { icon: Users, label: 'Пациенты', path: '/admin/patients' },
-    { icon: Calendar, label: 'Расписание', path: '/admin/schedule' },
-    { icon: Activity, label: 'Диагностика', path: '/admin/diagnostics' },
-    { icon: ClipboardIcon, label: 'Медкарты', path: '/admin/records' }, // ✅ здесь
-    { icon: FileText, label: 'Отчеты', path: '/admin/reports' },
-    { icon: Settings, label: 'Настройки', path: '/admin/settings' }
+    { icon: Home, label: 'Asosiy', path: '/admin/' },
+    { icon: ClipboardIcon, label: 'Medkarta', path: '/admin/medcard' },
+    { icon: Calendar, label: 'Qabullar', path: '/admin/admissions' },
+    { icon: Settings, label: 'Akkaunt', path: '/admin/account' },
+    { icon: Settings, label: 'Sozlamalar', path: '/admin/settings' },
+    { icon: LogOut, label: 'Chiqish', path: '/login' },
+    { icon: Info, label: 'Loyiha haqida', path: '/admin/about ' },
+    { icon: Info, label: 'Texnik yordam', path: '/admin/support' }
 ]
 
 export const user = [
-    { icon: Home, label: 'Главная', path: '/user/' },
-    { icon: Users, label: 'Пациенты', path: '/user/patients' },
-    { icon: Calendar, label: 'Расписание', path: '/user/schedule' },
-    { icon: Activity, label: 'Диагностика', path: '/user/diagnostics' },
-    { icon: ClipboardIcon, label: 'Медкарты', path: '/user/records' }, // ✅ здесь
-    { icon: FileText, label: 'Отчеты', path: '/user/reports' },
-    { icon: Settings, label: 'Настройки', path: '/user/settings' }
+    { icon: Home, label: 'Asosiy', path: '/user/' },
+    { icon: ClipboardIcon, label: 'Medkarta', path: '/user/medcard' },
+    { icon: Calendar, label: 'Qabullar', path: '/user/admissions' },
+    { icon: Settings, label: 'Akkaunt', path: '/user/account' },
+    { icon: Settings, label: 'Sozlamalar', path: '/user/settings' },
+    { icon: LogOut, label: 'Chiqish', path: '/login' },
+    { icon: Info, label: 'Loyiha haqida', path: '/user/about ' },
+    { icon: Info, label: 'Texnik yordam', path: '/user/support' }
 ]
 
 export const doctor = [
-    { icon: Home, label: 'Главная', path: '/doctor/' },
-    { icon: Users, label: 'Пациенты', path: '/doctor/patients' },
-    { icon: Calendar, label: 'Расписание', path: '/doctor/schedule' },
-    { icon: Activity, label: 'Диагностика', path: '/doctor/diagnostics' },
-    { icon: ClipboardIcon, label: 'Медкарты', path: '/doctor/records' }, // ✅ здесь
-    { icon: FileText, label: 'Отчеты', path: '/doctor/reports' },
-    { icon: Settings, label: 'Настройки', path: '/doctor/settings' }
+    { icon: Home, label: 'Asosiy', path: '/doctor/' },
+    { icon: ClipboardIcon, label: 'Medkarta', path: '/doctor/medcard' },
+    { icon: Calendar, label: 'Qabullar', path: '/doctor/admissions' },
+    { icon: Settings, label: 'Akkaunt', path: '/doctor/account' },
+    { icon: Settings, label: 'Sozlamalar', path: '/doctor/settings' },
+    { icon: LogOut, label: 'Chiqish', path: '/login' },
+    { icon: Info, label: 'Loyiha haqida', path: '/doctor/about ' },
+    { icon: Info, label: 'Texnik yordam', path: '/doctor/support' }
 ]
 
 export const moderator = [
-    { icon: Home, label: 'Главная', path: '/moderator/' },
-    { icon: Users, label: 'Пациенты', path: '/moderator/patients' },
-    { icon: Calendar, label: 'Расписание', path: '/moderator/schedule' },
-    { icon: Activity, label: 'Диагностика', path: '/moderator/diagnostics' },
-    { icon: ClipboardIcon, label: 'Медкарты', path: '/moderator/records' }, // ✅ здесь
-    { icon: FileText, label: 'Отчеты', path: '/moderator/reports' },
-    { icon: Settings, label: 'Настройки', path: '/moderator/settings' }
+    { icon: Home, label: 'Asosiy', path: '/moderator/' },
+    { icon: ClipboardIcon, label: 'Medkarta', path: '/moderator/medcard' },
+    { icon: Calendar, label: 'Qabullar', path: '/moderator/admissions' },
+    { icon: Settings, label: 'Akkaunt', path: '/moderator/account' },
+    { icon: Settings, label: 'Sozlamalar', path: '/moderator/settings' },
+    { icon: LogOut, label: 'Chiqish', path: '/login' },
+    { icon: Info, label: 'Loyiha haqida', path: '/moderator/about ' },
+    { icon: Info, label: 'Texnik yordam', path: '/moderator/support' }
 ]

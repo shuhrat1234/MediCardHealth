@@ -3,7 +3,6 @@ import { Route, Routes } from 'react-router-dom'
 import AdminMain from '../../components/admin/AdminMain'
 import Sidebar from '../../components/navigatebars/Sidebar'
 import Navbar from '../../components/navigatebars/Navbar'
-import AdminPatients from '../../components/admin/AdminPatients'
 
 function Admin() {
     return (
@@ -18,7 +17,6 @@ function Admin() {
                 <div className="flex-1">
                     <Routes>
                         <Route path="" element={<AdminMain />} />
-                        <Route path="patients" element={<AdminPatients />} />
                     </Routes>
                 </div>
             </div>

@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Context } from '../../App'; // Adjust the path according to your file structure
 
 function Login() {
+    const navigate = useNavigate();
+    const { setToken, setRole } = useContext(Context);
+    
     const [formData, setFormData] = useState({
         id: '',
         fullName: '',
@@ -9,25 +13,43 @@ function Login() {
     });
 
     const [errors, setErrors] = useState({});
-    const navigate = useNavigate()
+    
     const roles = [
-        { value: 'user', label: 'Пациент' },
-        { value: 'doctor', label: 'Доктор' },
-        { value: 'moderator', label: 'Модератор' },
-        { value: 'admin', label: 'Админ' }
+        { value: 'user', label: 'BEMOR' },
+        { value: 'doctor', label: 'SHIFOKOR' },
+        { value: 'moderator', label: 'MODERATOR' }
     ];
 
     const validateId = (id) => {
-        const idPattern = /^[A-Z]{2}\d{5}$/;
+        const idPattern = /^[A-Z]{2}\s\d{7}$/;
         return idPattern.test(id);
+    };
+
+    const formatId = (value) => {
+        let cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+        
+        if (cleaned.length > 2) {
+            cleaned = cleaned.slice(0, 2) + ' ' + cleaned.slice(2, 9);
+        }
+        
+        return cleaned;
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        
+        if (name === 'id') {
+            const formattedValue = formatId(value);
+            setFormData(prev => ({
+                ...prev,
+                [name]: formattedValue
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
 
         if (errors[name]) {
             setErrors(prev => ({
@@ -37,131 +59,180 @@ function Login() {
         }
     };
 
-    const handleSubmit = e => {
-        e.preventDefault()
+    const handleSubmit = () => {
         const newErrors = {};
 
         if (!formData.id) {
-            newErrors.id = 'Обязательное поле';
+            newErrors.id = 'Majburiy maydon';
         } else if (!validateId(formData.id)) {
-            newErrors.id = 'Неверный формат ID';
+            newErrors.id = 'ID format noto\'g\'ri';
         }
 
         if (!formData.fullName.trim()) {
-            newErrors.fullName = 'Обязательное поле';
+            newErrors.fullName = 'Majburiy maydon';
         }
 
-        setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
 
         try {
+            let loginSuccess = false;
+            let userRole = '';
 
-            if (formData.id == 'AE11111' && formData.fullName == 'User' && formData.role == 'user') {
-                alert(`${formData.fullName} siz bemor profiliga muafaqiyatli kirdingiz`)
-                localStorage.setItem('role', 'user')
-                localStorage.setItem('token', true)
-                navigate('/user')
+            // Admin credentials
+            if (formData.id === 'AD 1111111' && formData.fullName === 'Admin') {
+                loginSuccess = true;
+                userRole = 'admin';
+                alert(`${formData.fullName}, siz admin sifatida tizimga kirdingiz`);
             }
-            if (formData.id == 'AE22222' && formData.fullName == 'Admin' && formData.role == 'admin') {
-                alert(`${formData.fullName} siz bemor profiliga muafaqiyatli kirdingiz`)
-                localStorage.setItem('role', 'admin')
-                localStorage.setItem('token', true)
-                navigate('/admin')
+            // Regular user credentials
+            else if (formData.id === 'AB 1234567' && formData.fullName === 'Bemor' && formData.role === 'user') {
+                loginSuccess = true;
+                userRole = 'user';
+                alert(`${formData.fullName}, siz bemor sifatida tizimga kirdingiz`);
+            } 
+            else if (formData.id === 'DR 2222222' && formData.fullName === 'Shifokor' && formData.role === 'doctor') {
+                loginSuccess = true;
+                userRole = 'doctor';
+                alert(`${formData.fullName}, siz shifokor sifatida tizimga kirdingiz`);
+            } 
+            else if (formData.id === 'MD 3333333' && formData.fullName === 'Moderator' && formData.role === 'moderator') {
+                loginSuccess = true;
+                userRole = 'moderator';
+                alert(`${formData.fullName}, siz moderator sifatida tizimga kirdingiz`);
+            } 
+            else {
+                alert('Noto\'g\'ri ma\'lumotlar kiritildi');
+                return;
             }
-            if (formData.id == 'AE33333' && formData.fullName == 'Doctor' && formData.role == 'doctor') {
-                alert(`${formData.fullName} siz bemor profiliga muafaqiyatli kirdingiz`)
-                localStorage.setItem('role', 'doctor')
-                localStorage.setItem('token', true)
-                navigate('/doctor')
-            }
-            if (formData.id == 'AE44444' && formData.fullName == 'Moderator' && formData.role == 'moderator') {
-                alert(`${formData.fullName} siz bemor profiliga muafaqiyatli kirdingiz`)
-                localStorage.setItem('role', 'moderator')
-                localStorage.setItem('token', true)
-                navigate('/moderator')
-            }
-        }
-        catch (error) {
-            console.log(error)
-            const role = localStorage.getItem('role')
-            if (role == null) {
-                alert('Malumotlarni toliq toldiring')
-            }
-        }
 
+            // If login is successful, set token and role, then navigate
+            if (loginSuccess) {
+                setToken(true);
+                setRole(userRole);
+                
+                // Navigate to the appropriate page based on role
+                setTimeout(() => {
+                    navigate(`/${userRole}`);
+                }, 1000); // Small delay to show the alert
+            }
+
+        } catch (error) {
+            console.log(error);
+            alert('Ma\'lumotlarni to\'liq to\'ldiring');
+        }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white">
-            <div className="w-full max-w-sm">
-                <div className="text-center mb-12">
-                    <div className="w-16 h-16 bg-[#007bff] rounded-full mx-auto mb-6 flex items-center justify-center">
-                        <div className="w-8 h-8 border-2 border-white rounded-sm"></div>
-                    </div>
-                    <h1 className="text-2xl font-light text-gray-900 tracking-wide">
-                        МЕДИЦИНСКИЙ ЦЕНТР
-                    </h1>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <input
-                            name="id"
-                            type="text"
-                            value={formData.id}
-                            onChange={handleInputChange}
-                            className={`w-full px-0 py-3 border-0 border-b-2 bg-transparent text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#007bff] transition-colors ${errors.id ? 'border-red-400' : 'border-gray-200'
-                                }`}
-                            placeholder="ID сотрудника"
-                            maxLength={7}
-                        />
-                        {errors.id && (
-                            <p className="mt-2 text-sm text-red-500">{errors.id}</p>
-                        )}
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+            <div className="w-full max-w-md">
+                {/* Card Container */}
+                <div className="bg-white border border-gray-300 shadow-lg">
+                    {/* Header */}
+                    <div className="p-8 text-center border-b border-gray-300">
+                        <div className="text-5xl font-bold mb-3">
+                            <span className="text-[#3d99f5]">MediCard</span>
+                        </div>
+                        <div className="w-55 h-1 bg-[#3d99f5] mx-auto mb-4"></div>
                     </div>
 
-                    <div>
-                        <input
-                            name="fullName"
-                            type="text"
-                            value={formData.fullName}
-                            onChange={handleInputChange}
-                            className={`w-full px-0 py-3 border-0 border-b-2 bg-transparent text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#007bff] transition-colors ${errors.fullName ? 'border-red-400' : 'border-gray-200'
-                                }`}
-                            placeholder="Фамилия Имя Отчество"
-                        />
-                        {errors.fullName && (
-                            <p className="mt-2 text-sm text-red-500">{errors.fullName}</p>
-                        )}
+                    {/* Title Section */}
+                    <div className="p-6 text-center border-b border-gray-300">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-1">
+                            Tizimga kirish
+                        </h2>
                     </div>
 
-                    <div>
-                        <select
-                            name="role"
-                            value={formData.role}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-3 border-0 border-b-2 border-gray-200 bg-transparent text-gray-900 focus:outline-none focus:border-[#007bff] transition-colors appearance-none cursor-pointer"
-                        >
-                            {roles.map((role) => (
-                                <option key={role.value} value={role.value} className="bg-white py-1">
-                                    {role.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {/* Form Section */}
+                    <div className="p-6">
+                        <div className="space-y-5">
+                            {/* Full Name Input */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    To'liq ism
+                                </label>
+                                <input
+                                    name="fullName"
+                                    type="text"
+                                    value={formData.fullName}
+                                    onChange={handleInputChange}
+                                    className={`w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors ${
+                                        errors.fullName ? 'border-red-400' : ''
+                                    }`}
+                                    placeholder="Familiya Ism Otasining ismi"
+                                />
+                                {errors.fullName && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>
+                                )}
+                            </div>
 
-                    <div className="pt-8">
-                        <button
-                            className="w-full py-4 rounded-2xl bg-[#007bff] text-white font-medium tracking-wide hover:bg-[#0056b3] focus:outline-none focus:ring-2 focus:ring-[#007bff] focus:ring-opacity-50 transition-all duration-200"
-                        >
-                            ВОЙТИ
-                        </button>
-                    </div>
-                </form>
+                            {/* ID Label */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    FOYDALANUVCHI ID
+                                </label>
+                                <input
+                                    name="id"
+                                    type="text"
+                                    value={formData.id}
+                                    onChange={handleInputChange}
+                                    className={`w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors font-mono ${
+                                        errors.id ? 'border-red-400' : ''
+                                    }`}
+                                    placeholder="XX 1234567"
+                                    maxLength={10}
+                                />
+                                {errors.id && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.id}</p>
+                                )}
+                                <p className="mt-1 text-xs text-gray-500">
+                                    2 TA HARF VA 7 TA RAQAM (MASALAN: AB 1234567)
+                                </p>
+                            </div>
 
-                <div className="mt-8 pt-6 border-t border-gray-100">
-                    <p className="text-xs text-gray-400 text-center">
-                        Формат ID: две заглавные буквы + пять цифр
-                    </p>
+                            {/* Role Selection */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    LOGINTYPE
+                                </label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {roles.map((role) => (
+                                        <label
+                                            key={role.value}
+                                            className={`flex items-center justify-center p-3 border cursor-pointer transition-colors ${
+                                                formData.role === role.value
+                                                    ? 'border-[#3d99f5] bg-blue-50 text-[#3d99f5]'
+                                                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="role"
+                                                value={role.value}
+                                                checked={formData.role === role.value}
+                                                onChange={handleInputChange}
+                                                className="sr-only"
+                                            />
+                                            <span className="text-sm font-medium">{role.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Submit Button */}
+                            <div className="pt-4">
+                                <button
+                                    type="button"
+                                    onClick={handleSubmit}
+                                    className="w-full py-3 bg-[#3d99f5] text-white font-semibold hover:bg-[#1b89f7] focus:outline-none focus:ring-2 focus:ring-[#3d99f5] focus:ring-offset-2 transition-colors"
+                                >
+                                    Tizimga kirish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

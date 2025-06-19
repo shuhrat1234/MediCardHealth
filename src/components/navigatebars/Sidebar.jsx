@@ -29,9 +29,9 @@ function Sidebar() {
     console.log(matchedArray)
 
     // Split navigation items into groups like in the image
-    const mainNavItems = matchedArray?.slice(0, 4) || [] // BOSHQARUV PANELI section
-    const settingsItems = matchedArray?.slice(4, 6) || [] // SOZLAMALAR section  
-    const helpItems = matchedArray?.slice(6, 8) || [] // YORDAM section
+    const mainNavItems = matchedArray?.slice(0, 5) || [] // BOSHQARUV PANELI section
+    const settingsItems = matchedArray?.slice(5, 6) || [] // SOZLAMALAR section  
+    const helpItems = matchedArray?.slice(6, 9  ) || [] // YORDAM section
 
     const renderNavItem = (item, index, isActive) => {
         const Icon = item.icon;

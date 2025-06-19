@@ -43,10 +43,11 @@ export const doctor = [
 
 export const moderator = [
     { icon: Home, label: 'Asosiy', path: '/moderator/' },
-    { icon: ClipboardIcon, label: 'Medkarta', path: '/moderator/medcard' },
-    { icon: Calendar, label: 'Qabullar', path: '/moderator/admissions' },
-    { icon: Settings, label: 'Akkaunt', path: '/moderator/account' },
-    { icon: Settings, label: 'Sozlamalar', path: '/moderator/settings' },
+    { icon: ClipboardIcon, label: 'Shifokorlarni boshqarish', path: '/moderator/doctormanagement' },
+    { icon: Calendar, label: 'Bemorlarni boshqarish', path: '/moderator/patientmanagement' },
+    { icon: Settings, label: 'Klinikalarni boshqarish', path: '/moderator/clinicmanagement' },
+    { icon: Settings, label: 'Analitika', path: '/moderator/analytic' },
+    { icon: Settings, label: 'Sozlamalar', path: '/moderator/setting' },
     { icon: LogOut, label: 'Chiqish', path: '/login' },
     { icon: Info, label: 'Loyiha haqida', path: '/moderator/about ' },
     { icon: Info, label: 'Texnik yordam', path: '/moderator/support' }

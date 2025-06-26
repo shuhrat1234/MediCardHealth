@@ -1,5 +1,5 @@
 import {
-    Home, Calendar, Settings, LogOut, Info, Clipboard as ClipboardIcon
+    Home, Hospital, ChartNoAxesCombined, Calendar, FilePlus, IdCard, Settings, LogOut, Info, Clipboard as ClipboardIcon
 
 } from 'lucide-react'
 
@@ -10,10 +10,9 @@ import {
 
 export const admin = [
     { icon: Home, label: 'Asosiy', path: '/admin/' },
-    { icon: ClipboardIcon, label: 'Medkarta', path: '/admin/medcard' },
-    { icon: Calendar, label: 'Qabullar', path: '/admin/admissions' },
-    { icon: Settings, label: 'Akkaunt', path: '/admin/account' },
-    { icon: Settings, label: 'Sozlamalar', path: '/admin/settings' },
+    { icon: ClipboardIcon, label: 'Foydalanuvchilar', path: '/admin/user' },
+    { icon: ClipboardIcon, label: 'Klinikalar', path: '/admin/clinic' },
+    { icon: Settings, label: 'Sozlamalar', path: '/admin/setting' },
     { icon: LogOut, label: 'Chiqish', path: '/login' },
     { icon: Info, label: 'Loyiha haqida', path: '/admin/about ' },
     { icon: Info, label: 'Texnik yordam', path: '/admin/support' }
@@ -21,10 +20,10 @@ export const admin = [
 
 export const user = [
     { icon: Home, label: 'Asosiy', path: '/user/' },
-    { icon: ClipboardIcon, label: 'Medkarta', path: '/user/medcard' },
-    { icon: Calendar, label: 'Qabullar', path: '/user/admissions' },
-    { icon: Settings, label: 'Akkaunt', path: '/user/account' },
-    { icon: Settings, label: 'Sozlamalar', path: '/user/settings' },
+    { icon: IdCard, label: 'Tibbiy kartam', path: '/user/medcard' },
+    { icon: Calendar, label: 'Qabulga yozilish', path: '/user/registration' },
+    { icon: ClipboardIcon, label: 'Qabul yozuvlarim', path: '/user/appointment' },
+    { icon: Settings, label: 'Sozlamalar', path: '/user/setting' },
     { icon: LogOut, label: 'Chiqish', path: '/login' },
     { icon: Info, label: 'Loyiha haqida', path: '/user/about ' },
     { icon: Info, label: 'Texnik yordam', path: '/user/support' }
@@ -32,12 +31,12 @@ export const user = [
 
 export const doctor = [
     { icon: Home, label: 'Asosiy', path: '/doctor/' },
-    { icon: ClipboardIcon, label: 'Medkarta', path: '/doctor/medcard' },
-    { icon: Calendar, label: 'Qabullar', path: '/doctor/admissions' },
-    { icon: Settings, label: 'Akkaunt', path: '/doctor/account' },
-    { icon: Settings, label: 'Sozlamalar', path: '/doctor/settings' },
+    { icon: ClipboardIcon, label: 'Navbatlarim', path: '/doctor/spot' },
+    { icon: IdCard, label: 'Bemor kartalari', path: '/doctor/patientcard' },
+    { icon: FilePlus, label: 'Kartani yangilash', path: '/doctor/updatecard' },
+    { icon: Settings, label: 'Sozlamalar', path: '/doctor/setting' },
     { icon: LogOut, label: 'Chiqish', path: '/login' },
-    { icon: Info, label: 'Loyiha haqida', path: '/doctor/about ' },
+    { icon: Info, label: 'Loyiha haqida', path: '/doctor/about' },
     { icon: Info, label: 'Texnik yordam', path: '/doctor/support' }
 ]
 
@@ -45,8 +44,8 @@ export const moderator = [
     { icon: Home, label: 'Asosiy', path: '/moderator/' },
     { icon: ClipboardIcon, label: 'Shifokorlarni boshqarish', path: '/moderator/doctormanagement' },
     { icon: Calendar, label: 'Bemorlarni boshqarish', path: '/moderator/patientmanagement' },
-    { icon: Settings, label: 'Klinikalarni boshqarish', path: '/moderator/clinicmanagement' },
-    { icon: Settings, label: 'Analitika', path: '/moderator/analytic' },
+    { icon: Hospital, label: 'Klinikalarni boshqarish', path: '/moderator/clinicmanagement' },
+    { icon: ChartNoAxesCombined, label: 'Analitika', path: '/moderator/analytic' },
     { icon: Settings, label: 'Sozlamalar', path: '/moderator/setting' },
     { icon: LogOut, label: 'Chiqish', path: '/login' },
     { icon: Info, label: 'Loyiha haqida', path: '/moderator/about ' },

@@ -1,11 +1,17 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import AdminMain from '../../components/admin/AdminMain'
 import Sidebar from '../../components/navigatebars/Sidebar'
 import Navbar from '../../components/navigatebars/Navbar'
 import DoctorMain from '../../components/doctor/DoctorMain'
+import DoctorSpot from '../../components/doctor/DoctorSpot'
+import DoctorPatientcard from '../../components/doctor/DoctorPatientcard'
+import DoctorUpdateCard from '../../components/doctor/DoctorUpdateCard'
+import DoctorSetting from '../../components/doctor/DoctorSetting'
+import DoctorAbout from '../../components/doctor/DoctorAbout'
+import DoctorSupport from '../../components/doctor/DoctorSupport'
 
-function Admin() {
+
+function Doctor() {
     return (
         <div className="min-h-screen flex bg-gray-50">
             {/* Сайдбар */}
@@ -17,7 +23,13 @@ function Admin() {
 
                 <div className="flex-1">
                     <Routes>
-                        <Route path="" element={<DoctorMain />} />
+                        <Route index element={<DoctorMain />} />
+                        <Route path="spot" element={<DoctorSpot/>} />
+                        <Route path="patientcard" element={<DoctorPatientcard/>} />
+                        <Route path="updatecard" element={<DoctorUpdateCard/>} />
+                        <Route path="setting" element={<DoctorSetting/>} />
+                        <Route path="about" element={<DoctorAbout/>} />
+                        <Route path="support" element={<DoctorSupport/>} />
                     </Routes>
                 </div>
             </div>
@@ -26,4 +38,4 @@ function Admin() {
     )
 }
 
-export default Admin
+export default Doctor

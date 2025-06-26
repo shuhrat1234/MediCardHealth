@@ -11,7 +11,7 @@ import ModeratorSetting from '../../components/moderator/ModeratorSetting'
 import ModeratorAbout from '../../components/moderator/ModeratorAbout'
 import ModeratorSupport from '../../components/moderator/ModeratorSupport'
 
-function Admin() {
+function Moderator() {
     return (
         <div className="min-h-screen flex bg-gray-50">
             {/* Сайдбар */}
@@ -36,4 +36,4 @@ function Admin() {
     )
 }
 
-export default Admin    
+export default Moderator    

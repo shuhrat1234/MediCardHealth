@@ -83,7 +83,7 @@ function Login() {
 
             // Admin credentials
             if (formData.id === 'AD 1111111' && formData.fullName === 'Admin') {
-                loginSuccess = true;
+                loginSuccess = true
                 userRole = 'admin';
                 alert(`${formData.fullName}, siz admin sifatida tizimga kirdingiz`);
             }

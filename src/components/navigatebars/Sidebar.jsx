@@ -85,7 +85,7 @@ function Sidebar() {
             )}
 
             <aside className={cn(
-                "fixed left-0 top-0 z-40 h-screen w-80 lg:w-72 border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out",
+                "fixed left-0 top-0 z-40 max-h-screen w-80 lg:w-72 border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out",
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full',
                 "lg:translate-x-0 lg:static lg:shadow-none"
             )}>

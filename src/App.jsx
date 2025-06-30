@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Moderator from "./pages/moderator/Moderator";
 import Admin from "./pages/admin/Admin";
 import User from "./pages/user/User";
@@ -12,32 +12,44 @@ export const Context = createContext();
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [token, setToken] = useState(() => localStorage.getItem("token") || false);
+  const [token, setToken] = useState(
+    () => localStorage.getItem("token") || null
+  );
   const [role, setRole] = useState(() => localStorage.getItem("role") || null);
 
   useEffect(() => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", token ? role : null);
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+    }
   }, [token, role]);
 
   return (
-    <Context.Provider value={{ sidebarOpen, setSidebarOpen, token, setToken, role, setRole }}>
+    <Context.Provider
+      value={{ sidebarOpen, setSidebarOpen, token, setToken, role, setRole }}
+    >
       <div className="min-h-screen bg-gray-50">
         <div className="flex flex-col">
           <Routes>
-            {/* Защищённые маршруты */}
+            {/* Публичный маршрут логина */}
+            <Route path="/login" element={<Login />} />
+
+            {/* Приватные маршруты — защищены через ProtectedRoutes */}
             <Route element={<ProtectedRoutes />}>
-              <Route path="moderator/*" element={<Moderator />} />
-              <Route path="user/*" element={<User />} />
-              <Route path="admin/*" element={<Admin />} />
-              <Route path="doctor/*" element={<Doctor />} />
+              <Route path="/moderator/*" element={<Moderator />} />
+              <Route path="/user/*" element={<User />} />
+              <Route path="/admin/*" element={<Admin />} />
+              <Route path="/doctor/*" element={<Doctor />} />
+
+              {/* Только если авторизован — показать 404 */}
+              <Route path="*" element={<Page404 />} />
             </Route>
 
-            {/* Публичный маршрут логина */}
-            <Route path="login" element={<Login />} />
-
-            {/* Страница 404 — должна быть в самом конце */}
-            <Route path="*" element={<Page404 />} />
+            {/* Все остальные (если не авторизован) → редирект на логин */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>
       </div>

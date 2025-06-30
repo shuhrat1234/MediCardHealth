@@ -58,7 +58,7 @@ function DoctorMain() {
       {/* Current Appointments Section */}
       <div className="mb-6">
         <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          <div className="p-4 text-white" style={{background: '#3d99f5'}}>
+          <div className="p-4 text-white bg-[#3d99f5]">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5" />

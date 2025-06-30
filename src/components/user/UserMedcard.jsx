@@ -75,10 +75,10 @@ function UserMedcard() {
 
   const getTypeIcon = (type) => {
     switch(type) {
-      case 'consultation': return <User className="w-5 h-5" />;
-      case 'analysis': return <TestTube className="w-5 h-5" />;
-      case 'procedure': return <Activity className="w-5 h-5" />;
-      default: return <FileText className="w-5 h-5" />;
+      case 'consultation': return <User className="w-5 h-5 text-white" />;
+      case 'analysis': return <TestTube className="w-5 h-5 text-white" />;
+      case 'procedure': return <Activity className="w-5 h-5 text-white" />;
+      default: return <FileText className="w-5 h-5 text-white" />;
     }
   };
 

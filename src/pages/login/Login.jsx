@@ -82,26 +82,22 @@ function Login() {
             let userRole = '';
 
             // Admin credentials
-            if (formData.id === 'AD 1111111' && formData.fullName === 'Admin') {
+            if (formData.id === 'AD 1111111' && formData.fullName === 'Jasur Tursunov Akramovich') {
                 loginSuccess = true
                 userRole = 'admin';
-                alert(`${formData.fullName}, siz admin sifatida tizimga kirdingiz`);
             }
             // Regular user credentials
-            else if (formData.id === 'AB 1234567' && formData.fullName === 'Bemor' && formData.role === 'user') {
+            else if (formData.id === 'AB 1234567' && formData.fullName === 'Dilnoza Karimova Rustamovna' && formData.role === 'user') {
                 loginSuccess = true;
                 userRole = 'user';
-                alert(`${formData.fullName}, siz bemor sifatida tizimga kirdingiz`);
             } 
-            else if (formData.id === 'DR 2222222' && formData.fullName === 'Shifokor' && formData.role === 'doctor') {
+            else if (formData.id === 'DR 2222222' && formData.fullName === 'Sherzod Islomov Bahromovich' && formData.role === 'doctor') {
                 loginSuccess = true;
                 userRole = 'doctor';
-                alert(`${formData.fullName}, siz shifokor sifatida tizimga kirdingiz`);
             } 
-            else if (formData.id === 'MD 3333333' && formData.fullName === 'Moderator' && formData.role === 'moderator') {
+            else if (formData.id === 'MD 3333333' && formData.fullName === 'Maftuna Yoldosheva Davronovna' && formData.role === 'moderator') {
                 loginSuccess = true;
                 userRole = 'moderator';
-                alert(`${formData.fullName}, siz moderator sifatida tizimga kirdingiz`);
             } 
             else {
                 alert('Noto\'g\'ri ma\'lumotlar kiritildi');

@@ -5,7 +5,7 @@ import { Context } from '../../App'; // Adjust the path according to your file s
 function Login() {
     const navigate = useNavigate();
     const { setToken, setRole } = useContext(Context);
-    
+
     const [formData, setFormData] = useState({
         id: '',
         fullName: '',
@@ -13,7 +13,7 @@ function Login() {
     });
 
     const [errors, setErrors] = useState({});
-    
+
     const roles = [
         { value: 'user', label: 'BEMOR' },
         { value: 'doctor', label: 'SHIFOKOR' },
@@ -27,17 +27,17 @@ function Login() {
 
     const formatId = (value) => {
         let cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-        
+
         if (cleaned.length > 2) {
             cleaned = cleaned.slice(0, 2) + ' ' + cleaned.slice(2, 9);
         }
-        
+
         return cleaned;
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        
+
         if (name === 'id') {
             const formattedValue = formatId(value);
             setFormData(prev => ({
@@ -90,15 +90,15 @@ function Login() {
             else if (formData.id === 'AB 1234567' && formData.fullName === 'Dilnoza Karimova Rustamovna' && formData.role === 'user') {
                 loginSuccess = true;
                 userRole = 'user';
-            } 
+            }
             else if (formData.id === 'DR 2222222' && formData.fullName === 'Sherzod Islomov Bahromovich' && formData.role === 'doctor') {
                 loginSuccess = true;
                 userRole = 'doctor';
-            } 
+            }
             else if (formData.id === 'MD 3333333' && formData.fullName === 'Maftuna Yoldosheva Davronovna' && formData.role === 'moderator') {
                 loginSuccess = true;
                 userRole = 'moderator';
-            } 
+            }
             else {
                 alert('Noto\'g\'ri ma\'lumotlar kiritildi');
                 return;
@@ -108,7 +108,7 @@ function Login() {
             if (loginSuccess) {
                 setToken(true);
                 setRole(userRole);
-                
+
                 // Navigate to the appropriate page based on role
                 setTimeout(() => {
                     navigate(`/${userRole}`);
@@ -154,9 +154,8 @@ function Login() {
                                     type="text"
                                     value={formData.fullName}
                                     onChange={handleInputChange}
-                                    className={`w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors ${
-                                        errors.fullName ? 'border-red-400' : ''
-                                    }`}
+                                    className={`w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors ${errors.fullName ? 'border-red-400' : ''
+                                        }`}
                                     placeholder="Familiya Ism Otasining ismi"
                                 />
                                 {errors.fullName && (
@@ -174,9 +173,8 @@ function Login() {
                                     type="text"
                                     value={formData.id}
                                     onChange={handleInputChange}
-                                    className={`w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors font-mono ${
-                                        errors.id ? 'border-red-400' : ''
-                                    }`}
+                                    className={`w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors font-mono ${errors.id ? 'border-red-400' : ''
+                                        }`}
                                     placeholder="XX 1234567"
                                     maxLength={10}
                                 />
@@ -197,11 +195,10 @@ function Login() {
                                     {roles.map((role) => (
                                         <label
                                             key={role.value}
-                                            className={`flex items-center justify-center p-3 border cursor-pointer transition-colors ${
-                                                formData.role === role.value
-                                                    ? 'border-[#3d99f5] bg-blue-50 text-[#3d99f5]'
-                                                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                            }`}
+                                            className={`flex items-center justify-center p-3 border cursor-pointer transition-colors ${formData.role === role.value
+                                                ? 'border-[#3d99f5] bg-blue-50 text-[#3d99f5]'
+                                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                                }`}
                                         >
                                             <input
                                                 type="radio"

@@ -26,17 +26,25 @@ function Navbar() {
 
   return (
     <nav className="bg-white shadow-md border-b border-gray-200 px-4 py-3 sticky top-0 z-30 w-full">
-      <div className="flex items-center justify-between lg:max-w-[calc(100vw-18rem)]">
+      <div className="flex items-center justify-between w-full">
         {/* Левая часть - кнопка бургер */}
         <div className="flex items-center">
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors mr-4"
+            onClick={() => {
+              console.log('Menu button clicked, current state:', sidebarOpen)
+              setSidebarOpen(!sidebarOpen)
+            }}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors mr-4 border border-gray-300"
+            style={{ minWidth: '40px', minHeight: '40px' }}
           >
-            {sidebarOpen ? <X size={20} color="#007bff" /> : <Menu size={20} color="#007bff" />}
+            {sidebarOpen ? (
+              <X size={20} className="text-blue-500" />
+            ) : (
+              <Menu size={20} className="text-blue-500" />
+            )}
           </button>
 
-          {/* Заголовок страницы (скрыт на мобильных) */}
+          {/* Заголовок страницы */}
           <h2 className="hidden sm:block text-lg font-semibold text-gray-800">
             Boshqaruv paneli
           </h2>

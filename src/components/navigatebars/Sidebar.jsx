@@ -4,19 +4,16 @@ import { admin } from '../../constants/sidebar'
 import { user } from '../../constants/sidebar'
 import { doctor } from '../../constants/sidebar'
 import { moderator } from '../../constants/sidebar'
-import { Heart } from 'lucide-react'
+import { X } from 'lucide-react'
+import { Context } from '../../App'
 
 // Utility function for conditional classes
 const cn = (...classes) => classes.filter(Boolean).join(' ')
 
-// Контекст для управления состоянием сайдбара
-const SidebarContext = React.createContext()
-
 function Sidebar() {
-    // Получаем состояние sidebarOpen из контекста
-    const { sidebarOpen, setSidebarOpen } = useContext(SidebarContext) || { sidebarOpen: false, setSidebarOpen: () => { } }
+    const { sidebarOpen, setSidebarOpen } = useContext(Context) || { sidebarOpen: false, setSidebarOpen: () => { } }
     const location = useLocation()
-    const firstSliced = location.pathname.split('/')[1] // получаем первую часть пути (role)
+    const firstSliced = location.pathname.split('/')[1]
 
     const map = {
         admin,
@@ -25,13 +22,13 @@ function Sidebar() {
         doctor
     }
 
-    const matchedArray = map[firstSliced] // например, если firstSliced === 'user', получим user
+    const matchedArray = map[firstSliced]
     console.log(matchedArray)
 
-    // Split navigation items into groups like in the image
-    const mainNavItems = matchedArray?.slice(0, 5) || [] // BOSHQARUV PANELI section
-    const settingsItems = matchedArray?.slice(5, 6) || [] // SOZLAMALAR section  
-    const helpItems = matchedArray?.slice(6, 9  ) || [] // YORDAM section
+    // Split navigation items into groups
+    const mainNavItems = matchedArray?.slice(0, 5) || []
+    const settingsItems = matchedArray?.slice(5, 6) || []
+    const helpItems = matchedArray?.slice(6, 9) || []
 
     const renderNavItem = (item, index, isActive) => {
         const Icon = item.icon;
@@ -76,29 +73,38 @@ function Sidebar() {
 
     return (
         <>
-            {/* Оверлей для мобильных устройств */}
+            {/* Backdrop overlay with blur for mobile */}
             {sidebarOpen && (
                 <div
-                    className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+                    className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
 
+            {/* Sidebar */}
             <aside className={cn(
-                "fixed left-0 top-0 z-40 max-h-screen w-80 lg:w-72 border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out",
+                "fixed left-0 top-0 z-50 h-full w-80 lg:w-72 border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out",
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-                "lg:translate-x-0 lg:static lg:shadow-none"
+                "lg:translate-x-0 lg:static lg:shadow-none lg:z-auto"
             )}>
                 <div className="flex flex-col h-full">
-                    {/* Header */}
-                    <div className="text-center pt-8 pb-6 border-b border-gray-100">
+                    {/* Header with close button for mobile */}
+                    <div className="text-center pt-8 pb-6 border-b border-gray-100 relative">
+                        {/* Close button - only visible on mobile */}
+                        <button
+                            onClick={() => setSidebarOpen(false)}
+                            className="lg:hidden absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                            <X size={20} className="text-gray-600" />
+                        </button>
+
                         <div className="text-2xl font-medium mb-2">
                             <span className="text-[#3d99f5]">MediCard</span>
                         </div>
                         <div className="w-16 h-1 bg-[#3d99f5] mx-auto"></div>
                     </div>
 
-                    {/* Navigation */}
+                    {/* Navigation - scrollable content */}
                     <div className="flex-1 overflow-y-auto">
                         {/* BOSHQARUV PANELI Section */}
                         {mainNavItems.length > 0 && (
@@ -143,6 +149,9 @@ function Sidebar() {
                             </>
                         )}
                     </div>
+
+                    {/* Footer spacer to ensure content doesn't get cut off */}
+                    <div className="h-4 bg-white"></div>
                 </div>
             </aside>
         </>

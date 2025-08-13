@@ -1,41 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, User, Phone, FileText, Plus, CheckCircle, AlertCircle } from 'lucide-react';
 
 function DoctorSpot() {
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      patientName: "Akmal Karimov",
-      time: "09:00",
-      phone: "+998 90 123 45 67",
-      status: "kutilmoqda",
-      notes: "Bosh og'rig'i"
-    },
-    {
-      id: 2,
-      patientName: "Gulnora Usmonova",
-      time: "09:30",
-      phone: "+998 91 234 56 78",
-      status: "keldi",
-      notes: "Muntazam tekshiruv"
-    },
-    {
-      id: 3,
-      patientName: "Shohruh Abdullayev",
-      time: "10:00",
-      phone: "+998 93 345 67 89",
-      status: "kutilmoqda",
-      notes: "Qon bosimi tekshiruvi"
-    },
-    {
-      id: 4,
-      patientName: "Dilfuza Nazarova",
-      time: "10:30",
-      phone: "+998 94 456 78 90",
-      status: "tugallandi",
-      notes: "Lab natijalari muhokamasi"
+  const [appointments, setAppointments] = useState([]);
+  const [apiError, setApiError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const getPatients = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const result = await patientGet();
+      setAppointments(result)
+    } catch (error) {
+      setApiError(
+        error.response?.data?.detail || "Tizimga kirishda xatolik yuz berdi"
+      );
+    } finally {
+      setIsLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    getPatients()
+  }, [])
+
+
 
   const [newAppointment, setNewAppointment] = useState({
     patientName: '',
@@ -47,7 +36,7 @@ function DoctorSpot() {
   const [showAddForm, setShowAddForm] = useState(false);
 
   const updateStatus = (id, newStatus) => {
-    setAppointments(appointments.map(apt => 
+    setAppointments(appointments.map(apt =>
       apt.id === id ? { ...apt, status: newStatus } : apt
     ));
   };
@@ -100,7 +89,7 @@ function DoctorSpot() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-yellow-500">
@@ -174,27 +163,27 @@ function DoctorSpot() {
                   type="text"
                   placeholder="Bemor ismi"
                   value={newAppointment.patientName}
-                  onChange={(e) => setNewAppointment({...newAppointment, patientName: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, patientName: e.target.value })}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="time"
                   value={newAppointment.time}
-                  onChange={(e) => setNewAppointment({...newAppointment, time: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, time: e.target.value })}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="tel"
                   placeholder="Telefon raqami"
                   value={newAppointment.phone}
-                  onChange={(e) => setNewAppointment({...newAppointment, phone: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, phone: e.target.value })}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="text"
                   placeholder="Izohlar"
                   value={newAppointment.notes}
-                  onChange={(e) => setNewAppointment({...newAppointment, notes: e.target.value})}
+                  onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -218,64 +207,71 @@ function DoctorSpot() {
 
           {/* Appointments List */}
           <div className="divide-y divide-gray-200">
-            {appointments.map((appointment) => (
-              <div key={appointment.id} className="p-6 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#3d99f5' }}>
-                        <User className="w-6 h-6 text-white" />
+
+            {isLoading ?
+              <div className='w-full py-10 flex items-center justify-center'>
+                <div className='w-10 h-10 rounded-full border-2 border-b-0 border-blue-500'></div>
+              </div> :
+
+              appointments.map((appointment) => (
+                <div key={appointment.id} className="p-6 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#3d99f5' }}>
+                          <User className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-medium text-gray-900">{appointment.patientName}</h3>
+                        <div className="flex items-center space-x-4 mt-1">
+                          <div className="flex items-center text-gray-500">
+                            <Clock className="w-4 h-4 mr-1" />
+                            <span className="text-sm">{appointment.time}</span>
+                          </div>
+                          <div className="flex items-center text-gray-500">
+                            <Phone className="w-4 h-4 mr-1" />
+                            <span className="text-sm">{appointment.phone}</span>
+                          </div>
+                          {appointment.notes && (
+                            <div className="flex items-center text-gray-500">
+                              <FileText className="w-4 h-4 mr-1" />
+                              <span className="text-sm">{appointment.notes}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">{appointment.patientName}</h3>
-                      <div className="flex items-center space-x-4 mt-1">
-                        <div className="flex items-center text-gray-500">
-                          <Clock className="w-4 h-4 mr-1" />
-                          <span className="text-sm">{appointment.time}</span>
-                        </div>
-                        <div className="flex items-center text-gray-500">
-                          <Phone className="w-4 h-4 mr-1" />
-                          <span className="text-sm">{appointment.phone}</span>
-                        </div>
-                        {appointment.notes && (
-                          <div className="flex items-center text-gray-500">
-                            <FileText className="w-4 h-4 mr-1" />
-                            <span className="text-sm">{appointment.notes}</span>
-                          </div>
+
+                    <div className="flex items-center space-x-3">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                        {getStatusIcon(appointment.status)}
+                        <span className="ml-1 capitalize">{appointment.status}</span>
+                      </span>
+
+                      <div className="flex space-x-2">
+                        {appointment.status === 'kutilmoqda' && (
+                          <button
+                            onClick={() => updateStatus(appointment.id, 'keldi')}
+                            className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors"
+                          >
+                            Keldi
+                          </button>
+                        )}
+                        {appointment.status === 'keldi' && (
+                          <button
+                            onClick={() => updateStatus(appointment.id, 'tugallandi')}
+                            className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors"
+                          >
+                            Tugallash
+                          </button>
                         )}
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
-                      {getStatusIcon(appointment.status)}
-                      <span className="ml-1 capitalize">{appointment.status}</span>
-                    </span>
-                    
-                    <div className="flex space-x-2">
-                      {appointment.status === 'kutilmoqda' && (
-                        <button
-                          onClick={() => updateStatus(appointment.id, 'keldi')}
-                          className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors"
-                        >
-                          Keldi
-                        </button>
-                      )}
-                      {appointment.status === 'keldi' && (
-                        <button
-                          onClick={() => updateStatus(appointment.id, 'tugallandi')}
-                          className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors"
-                        >
-                          Tugallash
-                        </button>
-                      )}
-                    </div>
-                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            }
           </div>
         </div>
       </div>

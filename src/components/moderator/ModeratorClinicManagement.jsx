@@ -217,11 +217,10 @@ function ModeratorClinicManagement() {
                       <div className='text-sm text-gray-900'>{clinic.capacity} o\'rin</div>
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        clinic.status === 'Faol' 
-                          ? 'bg-green-100 text-green-800' 
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${clinic.status === 'Faol'
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
-                      }`}>
+                        }`}>
                         {clinic.status}
                       </span>
                     </td>
@@ -538,11 +537,10 @@ function ModeratorClinicManagement() {
 
                     <div>
                       <p className='text-sm text-gray-500 mb-1'>Holat</p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        selectedClinic.status === 'Faol' 
-                          ? 'bg-green-100 text-green-800' 
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedClinic.status === 'Faol'
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
-                      }`}>
+                        }`}>
                         {selectedClinic.status}
                       </span>
                     </div>
@@ -574,7 +572,7 @@ function ModeratorClinicManagement() {
                 Klinikani o'chirish
               </h3>
               <p className='text-gray-600 mb-6'>
-                Haqiqatan ham <strong>{clinicToDelete?.name}</strong> 
+                Haqiqatan ham <strong>{clinicToDelete?.name}</strong>
                 nomli klinikani o'chirmoqchimisiz? Bu amalni bekor qilib bo'lmaydi.
               </p>
               <div className='flex justify-end gap-3'>

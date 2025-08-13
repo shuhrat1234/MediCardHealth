@@ -17,6 +17,6 @@ export const patientDelete = (user_id) => {
   return axios.delete(API.patient.patientId(user_id));
 };
 
-export const patientPut = (user_id) => {
-  return axios.put(API.patient.patientId(user_id));
+export const patientPut = (user_id, data) => {
+  return axios.put(API.patient.patientId(user_id), data);
 };

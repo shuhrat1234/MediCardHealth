@@ -14,21 +14,21 @@ const API = {
 
   doctor: {
     doctor: "/doctor/",
-    doctorId: (user_id) => `/doctor/${user_id}`,
+    doctorId: (user_id) => `/doctor/${user_id}/`,
   },
   moderator: {
     moderator: "/moderator/",
-    moderatorId: (user_id) => `/moderator/${user_id}`,
+    moderatorId: (user_id) => `/moderator/${user_id}/`,
   },
-  
+
   patient: {
     patient: "/patient/",
-    patientId: (user_id) => `/patient/${user_id}`,
+    patientId: (user_id) => `/patient/${user_id}/`,
   },
 
   fillials: {
     fillials: "/fillials/",
-    fillialsId: (user_id) => `/fillials/${user_id}`,
+    fillialsId: (user_id) => `/fillials/${user_id}/`,
   },
 };
 

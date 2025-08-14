@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Users, Building2, UserCheck, Activity, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { Users, Building2, UserCheck, Activity, Clock, ChevronRight } from 'lucide-react'
 import axios from '../../api/axiosInstance'
 import { doctorGet } from "../../api/services/doctorService"
 import { patientGet } from "../../api/services/patientService"
@@ -9,6 +9,7 @@ function ModeratorMain() {
   const [stats, setStats] = useState({
     doctors: 0, patients: 0, clinics: 0
   })
+  const [actionsMap, setActionsMap] = useState(30)
 
   const getActionColor = (type) => {
     switch (type) {
@@ -39,6 +40,7 @@ function ModeratorMain() {
         })
 
         setRecentActions(actionsRes.data)
+        console.log(actionsRes.data)
       } catch (error) {
         console.error('Fetch error:', error)
       }
@@ -46,6 +48,8 @@ function ModeratorMain() {
 
     fetchData()
   }, [])
+
+  console.log(recentActions)
 
   return (
     <div className='min-h-full w-full bg-[#f7f7f7] p-6'>
@@ -117,24 +121,23 @@ function ModeratorMain() {
               </div>
             </div>
             <div className='divide-y divide-gray-200'>
-              {recentActions?.map((action) => {
-                const IconComponent = action.icon
+              {recentActions?.slice(0, actionsMap).map((action) => {
                 return (
-                  <div key={action.appointment_id} className='p-4 hover:bg-gray-50 transition-colors duration-150'>
+                  <div key={action?.appointment_id} className='p-4 hover:bg-gray-50 transition-colors duration-150'>
                     <div className='flex items-start space-x-4'>
-                      <div className={`p-2 rounded-full ${getActionColor(action.type)}`}>
-                        <IconComponent className='h-4 w-4' />
-                      </div>
                       <div className='flex-1 min-w-0'>
                         <p className='text-sm font-medium text-gray-900'>
-                          {action.user_fio}
+                          {action?.user_fio}
+                        </p>
+                        <p className='text-sm font-medium text-gray-900'>
+                          {action?.action}
                         </p>
                         <p className='text-sm text-gray-600 mt-1'>
-                          {action.details}
+                          {action?.details}
                         </p>
                         <div className='flex items-center mt-2 text-xs text-gray-500'>
                           <Clock className='h-3 w-3 mr-1' />
-                          {action.timestamp}
+                          {action?.timestamp}
                         </div>
                       </div>
                     </div>
@@ -142,11 +145,16 @@ function ModeratorMain() {
                 )
               })}
             </div>
-            <div className='p-4 bg-gray-50 border-t border-gray-200'>
-              <button className='text-sm text-blue-600 hover:text-blue-800 font-medium'>
-                Barcha harakatlarni ko'rish →
-              </button>
-            </div>
+            {
+              recentActions.length > actionsMap &&
+              <div className='p-4 bg-gray-50 border-t border-gray-200'>
+                <button
+                  onClick={() => setActionsMap(recentActions.length)}
+                  className='cursor-pointer text-[18px] text-blue-600 hover:text-blue-800 font-medium flex gap-[3px] items-center'>
+                  Barcha harakatlarni ko'rish <ChevronRight className='size-5' />
+                </button>
+              </div>
+            }
           </div>
         </div>
       </div>

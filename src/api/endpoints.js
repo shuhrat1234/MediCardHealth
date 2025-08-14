@@ -30,6 +30,7 @@ const API = {
     fillials: "/fillials/",
     fillialsId: (user_id) => `/fillials/${user_id}/`,
   },
+
 };
 
 export default API;

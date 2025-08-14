@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Camera,
   User,
@@ -16,58 +16,148 @@ import {
   EyeOff,
   Lock,
 } from "lucide-react";
+import { doctorGetId, doctorPut } from "../../api/services/doctorService";
 
 function DoctorSetting() {
-  const [formData, setFormData] = useState({
-    firstName: "Doktor",
-    lastName: "Ismi",
-    email: "doktor@example.uz",
-    phone: "+998901234567",
-    specialty: "Kardiologiya",
-    education: "Toshkent Tibbiyot Akademiyasi, 2010-2016",
-    consultationHours: "monday-friday",
-    timezone: "Asia/Tashkent",
-    language: "uz",
+   const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    specialty: "",
+    education: "",
+    consultationHours: "",
+    timezone: "",
+    language: "",
     password: "",
     confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null); // Yangi yuklangan rasm
   const [notifications, setNotifications] = useState({
-    email: true,
+    email: false,
     sms: false,
-    system: true,
+    system: false,
   });
 
+  const userId = localStorage.getItem("userId");
+
+  // Doktor ma’lumotlarini yuklash
+  useEffect(() => {
+    if (userId) {
+      doctorGetId(userId)
+        .then((res) => {
+          const data = res.data;
+          setFormData({
+            firstName: data.first_name || "",
+            lastName: data.last_name || "",
+            email: data.email || "",
+            phone: data.phone || "",
+            specialty: data.specialty || "",
+            education: data.education || "",
+            consultationHours: data.consultation_hours || "",
+            timezone: data.timezone || "",
+            language: data.language || "",
+            password: "",
+            confirmPassword: "",
+          });
+          if (data.image) {
+            setProfileImage(data.image);
+          }
+          setNotifications({
+            email: data.notify_email ?? false,
+            sms: data.notify_sms ?? false,
+            system: data.notify_system ?? false,
+          });
+        })
+        .catch((err) => {
+          console.error("Doktor ma'lumotlarini yuklashda xatolik:", err);
+        });
+    }
+  }, [userId]);
+
+  // Input o‘zgarishi
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Rasm yuklash
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onload = (e) => setProfileImage(e.target.result);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = () => {
-    if (formData.password && formData.password !== formData.confirmPassword) {
-      alert("Parollar mos kelmaydi!");
-      return;
-    }
-    alert("Sozlamalar muvaffaqiyatli saqlandi!");
-  };
-
+  // Bildirishnoma sozlamalari
   const handleNotificationChange = (type) => {
     setNotifications((prev) => ({
       ...prev,
       [type]: !prev[type],
     }));
   };
+
+  // Saqlash
+  const handleSave = () => {
+  const userId = localStorage.getItem("userId");
+
+  if (!userId) {
+    console.error("User ID mavjud emas, iltimos tizimga qayta kiring.");
+    return;
+  }
+
+  if (formData.password && formData.password !== formData.confirmPassword) {
+    console.error("Parollar mos kelmaydi!");
+    return;
+  }
+
+  const updatedData = {
+    first_name: formData.firstName,
+    last_name: formData.lastName,
+    email: formData.email,
+    phone: formData.phone,
+    specialty: formData.specialty,
+    education: formData.education,
+    consultation_hours: formData.consultationHours,
+    timezone: formData.timezone,
+    language: formData.language,
+    notify_email: notifications.email,
+    notify_sms: notifications.sms,
+    notify_system: notifications.system,
+  };
+
+  if (formData.password) {
+    updatedData.password = formData.password;
+  }
+
+  const sendData = new FormData();
+  for (const key in updatedData) {
+    sendData.append(key, updatedData[key]);
+  }
+  if (imageFile) {
+    sendData.append("image", imageFile);
+  }
+
+  console.log("===== Yuborilayotgan FormData =====");
+  for (let [key, value] of sendData.entries()) {
+    console.log(`${key}:`, value);
+  }
+  console.log("====");
+
+  doctorPut(userId, sendData)
+    .then((res) => {
+      console.log("✅ Sozlamalar muvaffaqiyatli saqlandi:", res.data);
+    })
+    .catch((err) => {
+      console.error(" Sozlamalarni saqlashda xatolik:", err);
+    });
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">

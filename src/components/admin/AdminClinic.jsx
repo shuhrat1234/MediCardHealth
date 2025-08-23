@@ -131,11 +131,11 @@ function AdminClinic() {
 
   const filteredClinics = clinics.filter(clinic => {
     const matchesSearch = clinic.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         clinic.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         clinic.type.toLowerCase().includes(searchTerm.toLowerCase());
+      clinic.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      clinic.type.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || clinic.status === selectedStatus;
     const matchesType = selectedType === 'all' || clinic.type === selectedType;
-    
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -237,7 +237,7 @@ function AdminClinic() {
               <option value='Oilaviy klinika'>Oilaviy klinikalar</option>
               <option value='Bolalar klinikasi'>Bolalar klinikalari</option>
             </select>
-            
+
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
@@ -258,7 +258,7 @@ function AdminClinic() {
               <Building className='h-16 w-16 text-gray-300 mx-auto mb-4' />
               <h3 className='text-lg font-medium text-gray-900 mb-2'>Klinikalar topilmadi</h3>
               <p className='text-gray-500'>
-                {searchTerm 
+                {searchTerm
                   ? 'Qidiruv natijasi topilmadi. Boshqa kalit so\'zlar bilan harakat qiling.'
                   : 'Hozircha klinikalar ro\'yxati bo\'sh.'
                 }
@@ -285,12 +285,12 @@ function AdminClinic() {
                       <MapPin className='h-4 w-4 text-gray-400 mt-1 flex-shrink-0' />
                       <p className='text-sm text-gray-600'>{clinic.address}</p>
                     </div>
-                    
+
                     <div className='flex items-center gap-2'>
                       <Phone className='h-4 w-4 text-gray-400' />
                       <p className='text-sm text-gray-600'>{clinic.phone}</p>
                     </div>
-                    
+
                     <div className='flex items-center gap-2'>
                       <Clock className='h-4 w-4 text-gray-400' />
                       <p className='text-sm text-gray-600'>{clinic.workingHours}</p>

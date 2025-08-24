@@ -19,25 +19,25 @@ export const admin = [
 ]
 
 export const user = [
-    { icon: Home, label: 'Asosiy', path: '/user/' },
-    { icon: IdCard, label: 'Tibbiy kartam', path: '/user/medcard' },
-    { icon: Calendar, label: 'Qabulga yozilish', path: '/user/registration' },
-    { icon: ClipboardIcon, label: 'Qabul yozuvlarim', path: '/user/appointment' },
-    { icon: Settings, label: 'Sozlamalar', path: '/user/setting' },
+    // { icon: Home, label: 'Asosiy', path: '/user/' },
+    // { icon: IdCard, label: 'Tibbiy kartam', path: '/user/medcard' },
+    // { icon: Calendar, label: 'Qabulga yozilish', path: '/user/registration' },
+    // { icon: ClipboardIcon, label: 'Qabul yozuvlarim', path: '/user/appointment' },
+    // { icon: Settings, label: 'Sozlamalar', path: '/user/setting' },
     { icon: LogOut, label: 'Chiqish', path: '/login' },
-    { icon: Info, label: 'Loyiha haqida', path: '/user/about ' },
-    { icon: Info, label: 'Texnik yordam', path: '/user/support' }
+    // { icon: Info, label: 'Loyiha haqida', path: '/user/about ' },
+    // { icon: Info, label: 'Texnik yordam', path: '/user/support' }
 ]
 
 export const doctor = [
-    { icon: Home, label: 'Asosiy', path: '/doctor/' },
-    { icon: ClipboardIcon, label: 'Navbatlarim', path: '/doctor/spot' },
-    { icon: IdCard, label: 'Bemor kartalari', path: '/doctor/patientcard' },
-    { icon: FilePlus, label: 'Kartani yangilash', path: '/doctor/updatecard' },
-    { icon: Settings, label: 'Sozlamalar', path: '/doctor/setting' },
+    // { icon: Home, label: 'Asosiy', path: '/doctor/' },
+    // { icon: ClipboardIcon, label: 'Navbatlarim', path: '/doctor/spot' },
+    // { icon: IdCard, label: 'Bemor kartalari', path: '/doctor/patientcard' },
+    // { icon: FilePlus, label: 'Kartani yangilash', path: '/doctor/updatecard' },
+    // { icon: Settings, label: 'Sozlamalar', path: '/doctor/setting' },
     { icon: LogOut, label: 'Chiqish', path: '/login' },
-    { icon: Info, label: 'Loyiha haqida', path: '/doctor/about' },
-    { icon: Info, label: 'Texnik yordam', path: '/doctor/support' }
+    // { icon: Info, label: 'Loyiha haqida', path: '/doctor/about' },
+    // { icon: Info, label: 'Texnik yordam', path: '/doctor/support' }
 ]
 
 export const moderator = [

@@ -261,8 +261,8 @@ function ModeratorPatientManagement() {
 
       {/* Search and Add */}
 
-      <div className="flex items-center justify-between mb-6">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
@@ -274,7 +274,7 @@ function ModeratorPatientManagement() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="cursor-pointer ml-4 bg-[#3d99f5] hover:bg-[#2d89e5] text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md hover:shadow-lg"
+          className="cursor-pointer w-full sm:w-auto bg-[#3d99f5] hover:bg-[#2d89e5] text-white px-4 py-2 rounded-lg flex items-center justify-center sm:justify-start space-x-2 transition-colors duration-200 shadow-md hover:shadow-lg"
         >
           <Plus className="w-4 h-4" />
           <span>Bemor qo'shish</span>
@@ -283,7 +283,7 @@ function ModeratorPatientManagement() {
 
       {/* Table Patient */}
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 overflow-x-scroll">
         <table className="w-full table-auto">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>

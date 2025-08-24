@@ -26,9 +26,9 @@ function AdminUser() {
 
   return (
     <div className="min-h-screen w-full bg-gray-50">
-      <div className="max-w-7xl mx-auto relative">
-        <div className="mb-8 p-6 pb-0">
-          {/* Stats Cards */}
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Stats Cards */}
+        <div className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {/* Jami */}
             <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow">
@@ -73,21 +73,33 @@ function AdminUser() {
           </div>
         </div>
 
-        <select
-          value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)}
-          className="absolute top-[163px] right-[250px] px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3d99f5] focus:border-transparent"
-        >
-          <option value="moderator">Moderatorlar</option>
-          <option value="doctor">Shifokorlar</option>
-          <option value="patient">Bemorlar</option>
-          <option value="clinic">Klinikalar</option>
-        </select>
+        {/* Role Selection Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-lg shadow lg:m-6">
+          <div className="mb-3 sm:mb-0">
+            <h2 className="text-xl font-semibold text-gray-800">Foydalanuvchilarni boshqarish</h2>
+            <p className="text-sm text-gray-600">Rol tanlang va foydalanuvchilarni boshqaring</p>
+          </div>
+          <div className="flex-shrink-0">
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="w-full sm:w-auto min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-700 font-medium"
+            >
+              <option value="moderator">Moderatorlar</option>
+              <option value="doctor">Shifokorlar</option>
+              <option value="patient">Bemorlar</option>
+              <option value="clinic">Klinikalar</option>
+            </select>
+          </div>
+        </div>
 
-        {selectedRole === "moderator" && <ModeratorMainManagement />}
-        {selectedRole === "doctor" && <ModeratorDoctorManagement />}
-        {selectedRole === "patient" && <ModeratorPatientManagement />}
-        {selectedRole === "clinic" && <ModeratorPatientManagement />}
+        {/* Content Management Components */}
+        <div>
+          {selectedRole === "moderator" && <ModeratorMainManagement />}
+          {selectedRole === "doctor" && <ModeratorDoctorManagement />}
+          {selectedRole === "patient" && <ModeratorPatientManagement />}
+          {selectedRole === "clinic" && <ModeratorPatientManagement />}
+        </div>
       </div>
     </div>
   );

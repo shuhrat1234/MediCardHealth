@@ -76,7 +76,7 @@ function AdminUser() {
         <select
           value={selectedRole}
           onChange={(e) => setSelectedRole(e.target.value)}
-          className="absolute top-[165px] right-[220px] px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3d99f5] focus:border-transparent"
+          className="absolute top-[163px] right-[250px] px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3d99f5] focus:border-transparent"
         >
           <option value="moderator">Moderatorlar</option>
           <option value="doctor">Shifokorlar</option>

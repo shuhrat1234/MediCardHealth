@@ -53,7 +53,7 @@ function Navbar() {
         {/* Правая часть - уведомления, язык, профиль */}
         <div className="flex items-center space-x-2">
           {/* Уведомления с бейджем */}
-          <div className="relative">
+          {/* <div className="relative">
             <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
               <Bell size={20} color="#6b7280" />
               {unreadCount > 0 && (
@@ -62,10 +62,10 @@ function Navbar() {
                 </span>
               )}
             </button>
-          </div>
+          </div> */}
 
           {/* Смена языка */}
-          <div className="relative">
+          {/* <div className="relative">
             <button
               onClick={() => setShowLanguageMenu(!showLanguageMenu)}
               className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -93,12 +93,12 @@ function Navbar() {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Закрытие выпадающих меню при клике вне их */}
-      {(showLanguageMenu || showProfileMenu) && (
+      {/* {(showLanguageMenu || showProfileMenu) && (
         <div
           className="fixed inset-0 z-40"
           onClick={() => {
@@ -106,7 +106,7 @@ function Navbar() {
             setShowProfileMenu(false)
           }}
         />
-      )}
+      )} */}
     </nav>
   )
 }

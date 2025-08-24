@@ -113,9 +113,9 @@ function AdminMain() {
         ]);
 
         setStats({
-          clinics: { count: 25, change: '+2' },
-          doctors: { count: doctorRes.data.length, change: '+8' },
-          patients: { count: patientRes.data.length, change: '+156' }
+          clinics: { count: 25, change: '+0' },
+          doctors: { count: doctorRes.data.length, change: '+0' },
+          patients: { count: patientRes.data.length, change: '+0' }
         });
 
         setRecentActivities(prev => [

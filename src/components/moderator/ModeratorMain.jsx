@@ -71,7 +71,7 @@ function ModeratorMain() {
                 </div>
               </div>
               <div className='mt-4 flex items-center text-sm text-gray-700'>
-                <span>Bu oyda +2 ta</span>
+                <span>Bu oyda +0 ta</span>
               </div>
             </div>
 
@@ -87,7 +87,7 @@ function ModeratorMain() {
                 </div>
               </div>
               <div className='mt-4 flex items-center text-sm text-gray-700'>
-                <span>Bu oyda +8 ta</span>
+                <span>Bu oyda +0 ta</span>
               </div>
             </div>
 
@@ -103,7 +103,7 @@ function ModeratorMain() {
                 </div>
               </div>
               <div className='mt-4 flex items-center text-sm text-gray-700'>
-                <span>Bu oyda +156 ta</span>
+                <span>Bu oyda +0 ta</span>
               </div>
             </div>
           </div>

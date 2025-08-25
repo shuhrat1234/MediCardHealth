@@ -28,6 +28,7 @@ export default function ProtectedRoutes() {
       } catch (error) {
         if (error.response?.status === 401) {
           const refresh = localStorage.getItem("refreshToken");
+          console.log(error)
           if (refresh) {
             try {
               const response = await refreshToken({ refresh });

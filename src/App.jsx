@@ -12,24 +12,13 @@ export const Context = createContext();
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [token, setToken] = useState(
-    () => localStorage.getItem("token") || null
-  );
+
   const [role, setRole] = useState(() => localStorage.getItem("role") || null);
 
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", role);
-    } else {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-    }
-  }, [token, role]);
 
   return (
     <Context.Provider
-      value={{ sidebarOpen, setSidebarOpen, token, setToken, role, setRole }}
+      value={{ sidebarOpen, setSidebarOpen, role, setRole }}
     >
       <div className="min-h-screen bg-gray-50">
         <div className="flex flex-col">

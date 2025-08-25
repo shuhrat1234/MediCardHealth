@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Plus, Eye, Edit, Trash2, Save, X, User, Phone, CalendarIcon, FileTextIcon, MapPin } from 'lucide-react';
-import { doctorDelete, doctorGet, doctorPost, doctorPut, } from '../../api/services/doctorService';
+import { doctorDelete, doctorGet, doctorPost, doctorPut } from '../../api/services/doctorService';
 
 function ModeratorDoctorManagement() {
   const [doctors, setDoctors] = useState([]);
@@ -15,15 +15,14 @@ function ModeratorDoctorManagement() {
   const [errors, setErrors] = useState({});
 
   // specialties
-
   const specialties = [
     'Kardiolog', 'Nevrolog', 'Jarroh', 'Terapevt', 'Pediatr',
     'Dermatolog', 'Oftalmolog', 'Lor', 'Ginekolog', 'Urolog'
-  ]
+  ];
 
   // add form data
-
   const [addFormData, setAddFormData] = useState({
+    user_id: "",
     fio: "",
     is_active: true,
     doctor_profile: {
@@ -36,20 +35,20 @@ function ModeratorDoctorManagement() {
   });
 
   // edit form data
-
   const [editFormData, setEditFormData] = useState({
     user_id: "",
     fio: "",
-    is_active: false,
-    specialty: "",
-    experience: "",
-    bio: "",
-    phone: "",
-    schedule: ""
+    is_active: true,
+    doctor_profile: {
+      specialty: "",
+      experience: "",
+      bio: "",
+      phone: "",
+      schedule: ""
+    }
   });
 
   // get-all-doctors
-
   const fetchDoctors = async () => {
     try {
       const { data } = await doctorGet();
@@ -65,9 +64,12 @@ function ModeratorDoctorManagement() {
   }, []);
 
   // form-validation
-
   const validateForm = (data) => {
     const newErrors = {};
+    // Validate user_id: 2 uppercase English letters, optional space, 7 digits
+    if (!data.user_id.match(/^[A-Z]{2}\s?\d{7}$/)) {
+      newErrors.user_id = "User ID format: 2 uppercase English letters, space, 7 digits (e.g., AB 1234567)";
+    }
     if (!data.fio.trim()) {
       newErrors.fio = "FIO majburiy";
     }
@@ -91,6 +93,30 @@ function ModeratorDoctorManagement() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // user_id input handler
+  const handleUserIdInput = (value) => {
+    let formattedValue = value.toUpperCase().slice(0, 10);
+    
+    // Remove non-English letters for first two characters
+    formattedValue = formattedValue.replace(/[^A-Z]/g, (match, offset) => offset < 2 ? '' : match);
+    
+    // Add space after 2 letters if 3rd character is entered
+    if (formattedValue.length > 2 && formattedValue[2] !== ' ') {
+      formattedValue = formattedValue.slice(0, 2) + ' ' + formattedValue.slice(2);
+    }
+    
+    // After space, allow only digits
+    if (formattedValue.length > 3) {
+      const parts = formattedValue.split(' ');
+      if (parts[1]) {
+        parts[1] = parts[1].replace(/[^0-9]/g, '').slice(0, 7);
+        formattedValue = parts[0] + ' ' + parts[1];
+      }
+    }
+    
+    return formattedValue;
+  };
+
   const handlePhone = (value, isDeleting) => {
     let digits = value.replace(/\D/g, "").slice(0, 9);
     if (isDeleting) return value;
@@ -103,9 +129,13 @@ function ModeratorDoctorManagement() {
   };
 
   // add-doctor
-
   const handleAddInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === "user_id") {
+      const formattedValue = handleUserIdInput(value);
+      setAddFormData(prev => ({ ...prev, user_id: formattedValue }));
+      return;
+    }
     if (name === "is_active") {
       setAddFormData(prev => ({
         ...prev,
@@ -137,7 +167,11 @@ function ModeratorDoctorManagement() {
     e.preventDefault();
     if (!validateForm(addFormData)) return;
     try {
-      await doctorPost(addFormData);
+      const formattedData = {
+        ...addFormData,
+        user_id: addFormData.user_id.replace(/\s/g, '')
+      };
+      await doctorPost(formattedData);
       await fetchDoctors();
       resetAddForm();
     } catch (error) {
@@ -147,6 +181,7 @@ function ModeratorDoctorManagement() {
 
   const resetAddForm = () => {
     setAddFormData({
+      user_id: "",
       fio: "",
       is_active: true,
       doctor_profile: { specialty: "", experience: "", bio: "", phone: "", schedule: "" }
@@ -156,36 +191,47 @@ function ModeratorDoctorManagement() {
   };
 
   // edit-doctor
-
   const handleEdit = (doctor) => {
+    const formattedUserId = doctor.user_id.replace(/([A-Z]{2})(\d{7})/, '$1 $2');
     setEditFormData({
-      user_id: doctor.user_id,
+      user_id: formattedUserId,
       fio: doctor.fio,
       is_active: doctor.is_active,
-      specialty: doctor.doctor_profile?.specialty || "",
-      experience: doctor.doctor_profile?.experience || "",
-      bio: doctor.doctor_profile?.bio || "",
-      phone: doctor.doctor_profile?.phone || "",
-      schedule: doctor.doctor_profile?.schedule || ""
+      doctor_profile: {
+        specialty: doctor.doctor_profile?.specialty || "",
+        experience: doctor.doctor_profile?.experience || "",
+        bio: doctor.doctor_profile?.bio || "",
+        phone: doctor.doctor_profile?.phone || "",
+        schedule: doctor.doctor_profile?.schedule || ""
+      }
     });
-    setSelectedEditDoctor(doctor)
+    setSelectedEditDoctor(doctor);
     setShowEditModal(true);
   };
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-
+    if (name === "user_id") {
+      const formattedValue = handleUserIdInput(value);
+      setEditFormData(prev => ({ ...prev, user_id: formattedValue }));
+      return;
+    }
     if (name === "is_active") {
       setEditFormData(prev => ({
         ...prev,
         is_active: value === "true"
       }));
     } else if (name === "phone") {
-      const prevValue = editFormData.phone || "";
+      const prevValue = editFormData.doctor_profile.phone || "";
       const isDeleting = value.length < prevValue.length;
       setEditFormData(prev => ({
         ...prev,
-        phone: handlePhone(value, isDeleting)
+        doctor_profile: { ...prev.doctor_profile, phone: handlePhone(value, isDeleting) }
+      }));
+    } else if (['specialty', 'experience', 'bio', 'schedule'].includes(name)) {
+      setEditFormData(prev => ({
+        ...prev,
+        doctor_profile: { ...prev.doctor_profile, [name]: value }
       }));
     } else {
       setEditFormData(prev => ({
@@ -197,21 +243,21 @@ function ModeratorDoctorManagement() {
 
   const handleUpdateDoctor = async (e) => {
     e.preventDefault();
-
+    if (!validateForm(editFormData)) return;
     const updateData = {
+      user_id: editFormData.user_id.replace(/\s/g, ''),
       fio: editFormData.fio,
       is_active: editFormData.is_active,
       doctor_profile: {
-        specialty: editFormData.specialty,
-        experience: editFormData.experience,
-        bio: editFormData.bio,
-        phone: editFormData.phone,
-        schedule: editFormData.schedule
+        specialty: editFormData.doctor_profile.specialty,
+        experience: editFormData.doctor_profile.experience,
+        bio: editFormData.doctor_profile.bio,
+        phone: editFormData.doctor_profile.phone,
+        schedule: editFormData.doctor_profile.schedule
       }
     };
-
     try {
-      await doctorPut(editFormData.user_id, updateData);
+      await doctorPut(editFormData.user_id.replace(/\s/g, ''), updateData);
       await fetchDoctors();
       resetEditForm();
     } catch (error) {
@@ -223,7 +269,7 @@ function ModeratorDoctorManagement() {
     setEditFormData({
       user_id: "",
       fio: "",
-      is_active: false,
+      is_active: true,
       doctor_profile: { specialty: "", experience: "", bio: "", phone: "", schedule: "" }
     });
     setErrors({});
@@ -231,7 +277,6 @@ function ModeratorDoctorManagement() {
   };
 
   // delete-doctor
-
   const handleDelete = (doctor) => {
     setDoctorToDelete(doctor);
     setShowDeleteModal(true);
@@ -249,25 +294,28 @@ function ModeratorDoctorManagement() {
   };
 
   // view-doctor
-
   const handleView = (doctor) => {
-    setSelectedViewDoctor(doctor);
+    const formattedDoctor = {
+      ...doctor,
+      user_id: doctor.user_id.replace(/([A-Z]{2})(\d{7})/, '$1 $2')
+    };
+    setSelectedViewDoctor(formattedDoctor);
     setShowViewModal(true);
   };
 
   // filters-doctor
-
   const filteredDoctor = doctors.filter(doctor =>
+    doctor.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     doctor.fio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.experience?.toLowerCase().includes(searchTerm.toLowerCase())
+    doctor.doctor_profile?.specialty?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doctor.doctor_profile?.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doctor.doctor_profile?.experience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doctor.doctor_profile?.schedule?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 font-sans">
-
       {/* Search and Add */}
-
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -289,17 +337,17 @@ function ModeratorDoctorManagement() {
       </div>
 
       {/* Table Doctors */}
-
       <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 overflow-x-scroll">
         <table className="w-full table-auto">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USER ID</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FIO</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mutaxassislik</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tajriba</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefon raqam</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ish jadval</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holat</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MUTAXASSISLIK</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TAJRIBA</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TELEFON RAQAM</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ISH JADVALI</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HOLAT</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AMALLAR</th>
             </tr>
           </thead>
@@ -307,6 +355,11 @@ function ModeratorDoctorManagement() {
             {filteredDoctor.length > 0 ? (
               filteredDoctor.map((doctor) => (
                 <tr key={doctor.user_id} className="hover:bg-gray-50 transition-colors duration-150">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className='text-sm text-gray-900'>
+                      {doctor.user_id.replace(/([A-Z]{2})(\d{7})/, '$1 $2')}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className='flex items-center'>
                       <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>
@@ -318,16 +371,16 @@ function ModeratorDoctorManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{doctor.specialty ? doctor.specialty : "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{doctor?.specialty || "Kiritilmagan"}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{doctor.experience ? doctor.experience : "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{doctor?.experience || "Kiritilmagan"}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{doctor.phone ? doctor.phone : "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{doctor?.phone.replace('=', '+') || "Kiritilmagan"}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{doctor.schedule ? doctor.schedule : "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{doctor?.schedule || "Kiritilmagan"}</div>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className={`w-[90px] h-[30px] flex justify-center items-center rounded-full text-sm text-white ${doctor.is_active ? 'bg-green-500' : 'bg-red-500'}`}>
@@ -360,7 +413,7 @@ function ModeratorDoctorManagement() {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-8 text-gray-500">
+                <td colSpan="8" className="text-center py-8 text-gray-500">
                   Shifokorlar topilmadi.
                 </td>
               </tr>
@@ -370,7 +423,6 @@ function ModeratorDoctorManagement() {
       </div>
 
       {/* Add Modal */}
-
       {showAddModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -388,6 +440,19 @@ function ModeratorDoctorManagement() {
             <form onSubmit={handleAddDoctor} className='p-6'>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">User ID *</label>
+                  <input
+                    type="text"
+                    name='user_id'
+                    value={addFormData.user_id}
+                    onChange={handleAddInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="AB 1234567"
+                    maxLength={10}
+                  />
+                  {errors.user_id && <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>}
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">FIO *</label>
                   <input
                     type="text"
@@ -399,9 +464,7 @@ function ModeratorDoctorManagement() {
                   {errors.fio && <p className="mt-1 text-sm text-red-600">{errors.fio}</p>}
                 </div>
                 <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-1'>
-                    Mutaxassislik *
-                  </label>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Mutaxassislik *</label>
                   <select
                     name="specialty"
                     value={addFormData.doctor_profile.specialty}
@@ -413,9 +476,7 @@ function ModeratorDoctorManagement() {
                       <option key={specialty} value={specialty}>{specialty}</option>
                     ))}
                   </select>
-                  {errors.specialty && (
-                    <p className="mt-1 text-sm text-red-600">{errors.specialty}</p>
-                  )}
+                  {errors.specialty && <p className="mt-1 text-sm text-red-600">{errors.specialty}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tajriba (yil) *</label>
@@ -496,7 +557,6 @@ function ModeratorDoctorManagement() {
       )}
 
       {/* Edit Modal */}
-
       {showEditModal && selectedEditDoctor && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -514,23 +574,33 @@ function ModeratorDoctorManagement() {
             <form onSubmit={handleUpdateDoctor} className='p-6'>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">User ID *</label>
+                  <input
+                    type="text"
+                    name='user_id'
+                    value={editFormData.user_id}
+                    onChange={handleEditInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    maxLength={10}
+                  />
+                  {errors.user_id && <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>}
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">FIO *</label>
                   <input
                     type="text"
                     name='fio'
-                    value={editFormData?.fio}
+                    value={editFormData.fio}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   {errors.fio && <p className="mt-1 text-sm text-red-600">{errors.fio}</p>}
                 </div>
                 <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-1'>
-                    Mutaxassislik *
-                  </label>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Mutaxassislik *</label>
                   <select
                     name="specialty"
-                    value={editFormData?.doctor_profile?.specialty}
+                    value={editFormData.doctor_profile.specialty}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
@@ -539,16 +609,14 @@ function ModeratorDoctorManagement() {
                       <option key={specialty} value={specialty}>{specialty}</option>
                     ))}
                   </select>
-                  {errors.specialty && (
-                    <p className="mt-1 text-sm text-red-600">{errors.specialty}</p>
-                  )}
+                  {errors.specialty && <p className="mt-1 text-sm text-red-600">{errors.specialty}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tajriba (yil) *</label>
                   <input
                     name='experience'
                     type="number"
-                    value={editFormData?.doctor_profile?.experience}
+                    value={editFormData.doctor_profile.experience}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -559,7 +627,7 @@ function ModeratorDoctorManagement() {
                   <input
                     name='bio'
                     type="text"
-                    value={editFormData?.doctor_profile?.bio}
+                    value={editFormData.doctor_profile.bio}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -570,7 +638,7 @@ function ModeratorDoctorManagement() {
                   <input
                     name='phone'
                     type="tel"
-                    value={editFormData?.doctor_profile?.phone}
+                    value={editFormData.doctor_profile.phone}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -581,7 +649,7 @@ function ModeratorDoctorManagement() {
                   <input
                     name='schedule'
                     type="text"
-                    value={editFormData?.doctor_profile?.schedule}
+                    value={editFormData.doctor_profile.schedule}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -591,7 +659,7 @@ function ModeratorDoctorManagement() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Holat *</label>
                   <select
                     name='is_active'
-                    value={editFormData?.is_active ? 'true' : 'false'}
+                    value={editFormData.is_active ? 'true' : 'false'}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
@@ -622,7 +690,6 @@ function ModeratorDoctorManagement() {
       )}
 
       {/* View Modal */}
-
       {showViewModal && selectedViewDoctor && (
         <div className='fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm'>
           <div className='bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl'>
@@ -643,50 +710,57 @@ function ModeratorDoctorManagement() {
                   <div className='flex items-center gap-3'>
                     <User className='w-5 h-5 text-gray-400' />
                     <div>
-                      <p className='text-xs text-gray-500'>FIO</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.fio}</p>
+                      <p className='text-xs text-gray-500'>User ID</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor.user_id}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
-                    <Phone className='w-5 h-5 text-gray-400' />
+                    <User className='w-5 h-5 text-gray-400' />
+                    <div>
+                      <p className='text-xs text-gray-500'>FIO</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor.fio}</p>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-3'>
+                    <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Mutaxassislik</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.specialty}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.specialty || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Tajriba (yil)</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.experience}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.experience || "Kiritilmagan"}</p>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-3'>
+                    <FileTextIcon className='w-5 h-5 text-gray-400' />
+                    <div>
+                      <p className='text-xs text-gray-500'>Haqida</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.bio || "Kiritilmagan"}</p>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-3'>
+                    <Phone className='w-5 h-5 text-gray-400' />
+                    <div>
+                      <p className='text-xs text-gray-500'>Telefon raqam</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.phone || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <CalendarIcon className='w-5 h-5 text-gray-400' />
                     <div>
-                      <p className='text-xs text-gray-500'>Haqida</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.bio}</p>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-3'>
-                    <MapPin className='w-5 h-5 text-gray-400' />
-                    <div>
-                      <p className='text-xs text-gray-500'>Telefon raqam</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.phone}</p>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-3'>
-                    <MapPin className='w-5 h-5 text-gray-400' />
-                    <div>
-                      <p className='text-xs text-gray-500'>ish jadval</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.schedule}</p>
+                      <p className='text-xs text-gray-500'>Ish jadvali</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.schedule || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Holat</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.is_active ? 'Faol' : 'No Faol'}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor.is_active ? 'Faol' : 'No Faol'}</p>
                     </div>
                   </div>
                 </div>
@@ -697,7 +771,6 @@ function ModeratorDoctorManagement() {
       )}
 
       {/* Delete Confirmation Modal */}
-
       {showDeleteModal && (
         <div className='fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm'>
           <div className='bg-white rounded-lg max-w-md w-full p-6 shadow-2xl'>

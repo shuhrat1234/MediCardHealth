@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Plus, Eye, Edit, Trash2, Save, X, User, Phone, CalendarIcon, FileTextIcon, MapPin } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2, Save, X, User, FileTextIcon, Phone } from 'lucide-react';
 import { moderatorGet, moderatorPost, moderatorDelete, moderatorPut } from '../../api/services/moderatorService';
 
 function ModeratorMainManagement() {
@@ -10,36 +10,36 @@ function ModeratorMainManagement() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedViewModerator, setSelectedViewModerator] = useState(null);
   const [selectedEditModerator, setSelectedEditModerator] = useState(null);
-  const [moderatorToDelete, setModeratorToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [errors, setErrors] = useState({});
 
   // add form data
-
   const [addFormData, setAddFormData] = useState({
+    user_id: "",
     fio: "",
     is_active: true,
     moderator_profile: {
       experience: "",
       notes: "",
       fillial: "",
+      phone: ""
     }
   });
 
   // edit form data
-
   const [editFormData, setEditFormData] = useState({
+    user_id: "",
     fio: "",
     is_active: true,
     moderator_profile: {
       experience: "",
       notes: "",
       fillial: "",
+      phone: ""
     }
   });
 
   // get-all-moderator
-
   const fetchModerator = async () => {
     try {
       const { data } = await moderatorGet();
@@ -55,9 +55,12 @@ function ModeratorMainManagement() {
   }, []);
 
   // form-validation
-
   const validateForm = (data) => {
     const newErrors = {};
+    // Validate user_id: 2 uppercase English letters, optional space, 7 digits
+    if (!data.user_id.match(/^[A-Z]{2}\s?\d{7}$/)) {
+      newErrors.user_id = "User ID format: 2 uppercase English letters, space, 7 digits (e.g., AB 1234567)";
+    }
     if (!data.fio.trim()) {
       newErrors.fio = "FIO majburiy";
     }
@@ -67,17 +70,48 @@ function ModeratorMainManagement() {
     if (!data.moderator_profile.notes) {
       newErrors.notes = "Eslatmalar kiritilishi shart";
     }
-    if (!data.moderator_profile.fillial.trim()) {
+    if (!data.moderator_profile.fillial.toString().trim()) {
       newErrors.fillial = "Fillial kiritilishi majburiy";
+    }
+    if (!data.moderator_profile.phone.trim()) {
+      newErrors.phone = "Telefon raqami kiritilishi majburiy";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // add-moderator
+  // user_id input handler
+  const handleUserIdInput = (value, isEdit = false) => {
+    let formattedValue = value.toUpperCase().slice(0, 10);
+    
+    // Remove non-English letters for first two characters
+    formattedValue = formattedValue.replace(/[^A-Z]/g, (match, offset) => offset < 2 ? '' : match);
+    
+    // Add space after 2 letters if 3rd character is entered
+    if (formattedValue.length > 2 && formattedValue[2] !== ' ') {
+      formattedValue = formattedValue.slice(0, 2) + ' ' + formattedValue.slice(2);
+    }
+    
+    // After space, allow only digits
+    if (formattedValue.length > 3) {
+      const parts = formattedValue.split(' ');
+      if (parts[1]) {
+        parts[1] = parts[1].replace(/[^0-9]/g, '').slice(0, 7);
+        formattedValue = parts[0] + ' ' + parts[1];
+      }
+    }
+    
+    return formattedValue;
+  };
 
+  // add-moderator
   const handleAddInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === "user_id") {
+      const formattedValue = handleUserIdInput(value);
+      setAddFormData(prev => ({ ...prev, user_id: formattedValue }));
+      return;
+    }
     if (name === "is_active") {
       setAddFormData(prev => ({
         ...prev,
@@ -85,10 +119,10 @@ function ModeratorMainManagement() {
       }));
       return;
     }
-    if (['experience', 'notes', 'fillial'].includes(name)) {
+    if (['experience', 'notes', 'fillial', 'phone'].includes(name)) {
       setAddFormData(prev => ({
         ...prev,
-        moderator_profile: { ...prev.moderator_profile, [name]: value }
+        moderator_profile: { ...prev.moderator_profile, [name]: name === 'fillial' ? value : value }
       }));
     } else {
       setAddFormData(prev => ({ ...prev, [name]: value }));
@@ -99,7 +133,16 @@ function ModeratorMainManagement() {
     e.preventDefault();
     if (!validateForm(addFormData)) return;
     try {
-      await moderatorPost(addFormData);
+      // Remove space from user_id before sending to backend
+      const formattedData = {
+        ...addFormData,
+        user_id: addFormData.user_id.replace(/\s/g, ''),
+        moderator_profile: {
+          ...addFormData.moderator_profile,
+          fillial: Number(addFormData.moderator_profile.fillial)
+        }
+      };
+      await moderatorPost(formattedData);
       await fetchModerator();
       resetAddForm();
     } catch (error) {
@@ -109,36 +152,50 @@ function ModeratorMainManagement() {
 
   const resetAddForm = () => {
     setAddFormData({
+      user_id: "",
       fio: "",
       is_active: true,
-      moderator_profile: { experience: "", notes: "", fillial: "" }
+      moderator_profile: { experience: "", notes: "", fillial: "", phone: "" }
     });
     setErrors({});
     setShowAddModal(false);
   };
 
   // edit-moderator
-
   const handleEdit = (moderator) => {
+    // Format user_id for display (add space after 2 letters)
+    const formattedUserId = moderator.user_id.replace(/([A-Z]{2})(\d{7})/, '$1 $2');
     setEditFormData({
-      user_id: moderator.user_id,
+      user_id: formattedUserId,
       fio: moderator.fio,
       is_active: moderator.is_active,
-      experience: moderator.moderator_profile?.experience || "",
-      notes: moderator.moderator_profile?.notes || "",
-      fillial: moderator.moderator_profile?.fillial || "",
+      moderator_profile: {
+        experience: moderator.moderator_profile?.experience || "",
+        notes: moderator.moderator_profile?.notes || "",
+        fillial: moderator.moderator_profile?.fillial?.toString() || "",
+        phone: moderator.moderator_profile?.phone || ""
+      }
     });
-    setSelectedEditModerator(moderator)
+    setSelectedEditModerator(moderator);
     setShowEditModal(true);
   };
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-
+    if (name === "user_id") {
+      const formattedValue = handleUserIdInput(value, true);
+      setEditFormData(prev => ({ ...prev, user_id: formattedValue }));
+      return;
+    }
     if (name === "is_active") {
       setEditFormData(prev => ({
         ...prev,
         is_active: value === "true"
+      }));
+    } else if (['experience', 'notes', 'fillial', 'phone'].includes(name)) {
+      setEditFormData(prev => ({
+        ...prev,
+        moderator_profile: { ...prev.moderator_profile, [name]: name === 'fillial' ? value : value }
       }));
     } else {
       setEditFormData(prev => ({
@@ -150,19 +207,20 @@ function ModeratorMainManagement() {
 
   const handleUpdateModerator = async (e) => {
     e.preventDefault();
-
+    if (!validateForm(editFormData)) return;
     const updateData = {
+      user_id: editFormData.user_id.replace(/\s/g, ''),
       fio: editFormData.fio,
       is_active: editFormData.is_active,
       moderator_profile: {
-        experience: editFormData.experience,
-        notes: editFormData.notes,
-        fillial: editFormData.fillial,
+        experience: editFormData.moderator_profile.experience,
+        notes: editFormData.moderator_profile.notes,
+        fillial: Number(editFormData.moderator_profile.fillial),
+        phone: editFormData.moderator_profile.phone
       }
     };
-
     try {
-      await moderatorPut(editFormData.user_id, updateData);
+      await moderatorPut(editFormData.user_id.replace(/\s/g, ''), updateData);
       await fetchModerator();
       resetEditForm();
     } catch (error) {
@@ -174,15 +232,14 @@ function ModeratorMainManagement() {
     setEditFormData({
       user_id: "",
       fio: "",
-      is_active: false,
-      moderator_profile: { experience: "", notes: "", fillial: "" }
+      is_active: true,
+      moderator_profile: { experience: "", notes: "", fillial: "", phone: "" }
     });
     setErrors({});
     setShowEditModal(false);
   };
 
   // delete-moderator
-
   const handleDelete = (moderator) => {
     setModeratorToDelete(moderator);
     setShowDeleteModal(true);
@@ -191,7 +248,7 @@ function ModeratorMainManagement() {
   const confirmDelete = async () => {
     try {
       await moderatorDelete(moderatorToDelete.user_id);
-      setModerator(moderator.filter(moderator => moderator.user_id !== moderatorToDelete.user_id));
+      setModerator(moderator.filter(m => m.user_id !== moderatorToDelete.user_id));
       setShowDeleteModal(false);
       setModeratorToDelete(null);
     } catch (error) {
@@ -200,25 +257,28 @@ function ModeratorMainManagement() {
   };
 
   // view-moderator
-
   const handleView = (moderator) => {
-    setSelectedViewModerator(moderator);
+    // Format user_id for display
+    const formattedModerator = {
+      ...moderator,
+      user_id: moderator.user_id.replace(/([A-Z]{2})(\d{7})/, '$1 $2')
+    };
+    setSelectedViewModerator(formattedModerator);
     setShowViewModal(true);
   };
 
   // filters-moderator
-
   const filteredModerator = moderator.filter(moderator =>
+    moderator.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     moderator.fio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    moderator.experience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    moderator.fillial?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    moderator.moderator_profile?.experience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    moderator.moderator_profile?.fillial?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+    moderator.moderator_profile?.phone?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 font-sans">
-
       {/* Search and Add */}
-
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -240,16 +300,17 @@ function ModeratorMainManagement() {
       </div>
 
       {/* Table Moderator */}
-
       <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 overflow-x-scroll">
         <table className="w-full table-auto overflow-x-scroll">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USER ID</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MODERATOR</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TAJRIBA</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ESLATMALAR</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">fillial</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holati</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FILLIAL</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TELEFON</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HOLATI</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AMALLAR</th>
             </tr>
           </thead>
@@ -257,6 +318,11 @@ function ModeratorMainManagement() {
             {filteredModerator.length > 0 ? (
               filteredModerator.map((moderator) => (
                 <tr key={moderator.user_id} className="hover:bg-gray-50 transition-colors duration-150">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className='text-sm text-gray-900'>
+                      {moderator.user_id.replace(/([A-Z]{2})(\d{7})/, '$1 $2')}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className='flex items-center'>
                       <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>
@@ -268,13 +334,16 @@ function ModeratorMainManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{moderator.experience ? moderator.experience : "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{moderator?.experience || "Kiritilmagan"}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{moderator.notes ? moderator.notes : "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{moderator?.notes || "Kiritilmagan"}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{moderator.fillial ? moderator.fillial : "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{moderator?.fillial || "Kiritilmagan"}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className='text-sm text-gray-900'>{moderator?.phone || "Kiritilmagan"}</div>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className={`w-[90px] h-[30px] flex justify-center items-center rounded-full text-sm text-white ${moderator.is_active ? 'bg-green-500' : 'bg-red-500'}`}>
@@ -307,7 +376,7 @@ function ModeratorMainManagement() {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-8 text-gray-500">
+                <td colSpan="8" className="text-center py-8 text-gray-500">
                   Moderatorlar topilmadi.
                 </td>
               </tr>
@@ -317,7 +386,6 @@ function ModeratorMainManagement() {
       </div>
 
       {/* Add Modal */}
-
       {showAddModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -334,6 +402,19 @@ function ModeratorMainManagement() {
             </div>
             <form onSubmit={handleAddModerator} className='p-6'>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">User ID *</label>
+                  <input
+                    type="text"
+                    name='user_id'
+                    value={addFormData.user_id}
+                    onChange={handleAddInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="AB 1234567"
+                    maxLength={10}
+                  />
+                  {errors.user_id && <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">FIO *</label>
                   <input
@@ -371,7 +452,7 @@ function ModeratorMainManagement() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Fillial *</label>
                   <input
                     name='fillial'
-                    type="text"
+                    type="number"
                     value={addFormData.moderator_profile.fillial}
                     onChange={handleAddInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -379,12 +460,22 @@ function ModeratorMainManagement() {
                   {errors.fillial && <p className="mt-1 text-sm text-red-600">{errors.fillial}</p>}
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Telefon *</label>
+                  <input
+                    name='phone'
+                    type="text"
+                    value={addFormData.moderator_profile.phone}
+                    onChange={handleAddInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Holat *</label>
                   <select
                     name='is_active'
-                    required
-                    value={editFormData.is_active ? 'true' : 'false'}
-                    onChange={handleEditInputChange}
+                    value={addFormData.is_active ? 'true' : 'false'}
+                    onChange={handleAddInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="true">Faol</option>
@@ -414,7 +505,6 @@ function ModeratorMainManagement() {
       )}
 
       {/* Edit Modal */}
-
       {showEditModal && selectedEditModerator && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -431,6 +521,18 @@ function ModeratorMainManagement() {
             </div>
             <form onSubmit={handleUpdateModerator} className='p-6'>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">User ID *</label>
+                  <input
+                    type="text"
+                    name='user_id'
+                    value={editFormData.user_id}
+                    onChange={handleEditInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    maxLength={10}
+                  />
+                  {errors.user_id && <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">FIO *</label>
                   <input
@@ -468,7 +570,7 @@ function ModeratorMainManagement() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Fillial *</label>
                   <input
                     name='fillial'
-                    type="text"
+                    type="number"
                     value={editFormData.moderator_profile.fillial}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -476,10 +578,20 @@ function ModeratorMainManagement() {
                   {errors.fillial && <p className="mt-1 text-sm text-red-600">{errors.fillial}</p>}
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Telefon *</label>
+                  <input
+                    name='phone'
+                    type="text"
+                    value={editFormData.moderator_profile.phone}
+                    onChange={handleEditInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Holat *</label>
                   <select
                     name='is_active'
-                    required
                     value={editFormData.is_active ? 'true' : 'false'}
                     onChange={handleEditInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -511,7 +623,6 @@ function ModeratorMainManagement() {
       )}
 
       {/* View Modal */}
-
       {showViewModal && selectedViewModerator && (
         <div className='fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm'>
           <div className='bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl'>
@@ -532,6 +643,13 @@ function ModeratorMainManagement() {
                   <div className='flex items-center gap-3'>
                     <User className='w-5 h-5 text-gray-400' />
                     <div>
+                      <p className='text-xs text-gray-500'>User ID</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.user_id}</p>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-3'>
+                    <User className='w-5 h-5 text-gray-400' />
+                    <div>
                       <p className='text-xs text-gray-500'>FIO</p>
                       <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.fio}</p>
                     </div>
@@ -540,21 +658,28 @@ function ModeratorMainManagement() {
                     <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Tajriba (yil)</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.experience}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.moderator_profile?.experience || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Eslatmalar</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.notes}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.moderator_profile?.notes || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Fillial</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.fillial}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.moderator_profile?.fillial || "Kiritilmagan"}</p>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-3'>
+                    <Phone className='w-5 h-5 text-gray-400' />
+                    <div>
+                      <p className='text-xs text-gray-500'>Telefon</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.moderator_profile?.phone || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
@@ -572,7 +697,6 @@ function ModeratorMainManagement() {
       )}
 
       {/* Delete Confirmation Modal */}
-
       {showDeleteModal && (
         <div className='fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-sm'>
           <div className='bg-white rounded-lg max-w-md w-full p-6 shadow-2xl'>

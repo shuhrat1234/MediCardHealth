@@ -1,55 +1,135 @@
-import React, { useState } from 'react';
-import { Users, Building2, Stethoscope, Activity, Clock, FileText, TrendingUp, AlertCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Users, Building2, Stethoscope, Activity, Clock, FileText, AlertCircle, ChevronRight } from 'lucide-react';
+import { doctorGet } from "../../api/services/doctorService";
+import { patientGet } from "../../api/services/patientService";
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 function AdminMain() {
-  const [stats] = useState({
-    clinics: { count: 25, change: '+2' },
-    doctors: { count: 142, change: '+8' },
-    patients: { count: 1876, change: '+156' }
+  const navigate = useNavigate()
+
+  const [stats, setStats] = useState({
+    clinics: { count: 0, change: '+0' },
+    doctors: { count: 0, change: '+0' },
+    patients: { count: 0, change: '+0' }
   });
 
-  const [recentActivities] = useState([
+  const [actionsMap, setActionsMap] = useState(5)
+
+  const [recentActivities, setRecentActivities] = useState([
     {
-      id: 1,
-      type: 'clinic',
-      title: 'Yangi klinika royxatdan otkazildi',
-      description: '"Salomatlik+" tibbiyot markazi',
-      time: '2 soat oldin',
-      icon: Building2
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
     },
     {
-      id: 2,
-      type: 'doctor',
-      title: 'Shifokor tasdiqlandi',
-      description: 'Doktor Ivanov A.S. – Kardiolog',
-      time: '3 soat oldin',
-      icon: Stethoscope
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
     },
     {
-      id: 3,
-      type: 'complaint',
-      title: 'Shifokorga shikoyat',
-      description: 'Doktor Petrov V.M. – korib chiqish talab qilinmoqda',
-      time: '5 soat oldin',
-      icon: AlertCircle
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
     },
     {
-      id: 4,
-      type: 'patient',
-      title: 'Yangi bemor',
-      description: 'Yangi bemor royxatdan otdi',
-      time: '1 soat oldin',
-      icon: Users
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
     },
     {
-      id: 5,
-      type: 'doctor',
-      title: 'Shifokor tasdiqlandi',
-      description: 'Doktor Ivanov A.S. – Kardiolog',
-      time: '3 soat oldin',
-      icon: Stethoscope
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
+    },
+    {
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
+    },
+    {
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
+    },
+    {
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
+    },
+    {
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
+    },
+    {
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
+    },
+    {
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
+    },
+    {
+      user_fio: "Admin User",
+      action: "doctor",
+      appointment_id: 101,
+      timestamp: new Date().toISOString(),
+      details: "Yangi shifokor qo‘shildi"
     },
   ]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [doctorRes, patientRes, actionsRes] = await Promise.all([
+          doctorGet(),
+          patientGet(),
+          axios.get('/recently-actions/')
+        ]);
+
+        setStats({
+          clinics: { count: 0, change: '+0' },
+          doctors: { count: doctorRes.data.length, change: '+0' },
+          patients: { count: patientRes.data.length, change: '+0' }
+        });
+
+        setRecentActivities(prev => [
+          ...prev,
+          ...(Array.isArray(actionsRes.data) ? actionsRes.data : [])
+        ])
+
+      } catch (error) {
+        console.error("Fetch error:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const StatCard = ({ title, count, change, icon: Icon, color }) => (
     <div className="bg-white rounded-lg shadow-md p-6 border-l-4" style={{ borderLeftColor: color }}>
@@ -70,9 +150,8 @@ function AdminMain() {
   );
 
   const ActivityItem = ({ activity }) => {
-    const IconComponent = activity.icon;
-    const getIconColor = (type) => {
-      switch (type) {
+    const getIconColor = (action) => {
+      switch (action) {
         case 'clinic': return '#3b82f6';
         case 'doctor': return '#10b981';
         case 'complaint': return '#f59e0b';
@@ -83,15 +162,17 @@ function AdminMain() {
 
     return (
       <div className="flex items-start space-x-3 p-4 hover:bg-gray-50 rounded-lg transition-colors">
-        <div className="p-2 rounded-full" style={{ backgroundColor: `${getIconColor(activity.type)}20` }}>
-          <IconComponent size={16} style={{ color: getIconColor(activity.type) }} />
+        <div className="p-2 rounded-full" style={{ backgroundColor: `${getIconColor(activity.action)}20` }}>
+          <AlertCircle size={16} style={{ color: getIconColor(activity.action) }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-          <p className="text-sm text-gray-500">{activity.description}</p>
+          <p className="text-sm font-medium text-gray-900">{activity.user_fio}</p>
+          <p className="text-sm text-gray-500">{activity.details}</p>
           <div className="flex items-center mt-1">
             <Clock size={12} className="text-gray-400 mr-1" />
-            <span className="text-xs text-gray-400">{activity.time}</span>
+            <span className="text-xs text-gray-400">
+              {new Date(activity.timestamp).toLocaleString()}
+            </span>
           </div>
         </div>
       </div>
@@ -136,17 +217,22 @@ function AdminMain() {
                 <Activity size={20} className="text-gray-400" />
               </div>
             </div>
-            <div className="p-2">
+            <div className="relative h-[585px] overflow-y-scroll p-2 overflow-x-hidden">
               <div className="space-y-1">
-                {recentActivities.map((activity) => (
-                  <ActivityItem key={activity.id} activity={activity} />
+                {recentActivities.slice(0, actionsMap).map((activity, index) => (
+                  <ActivityItem key={index} activity={activity} />
                 ))}
               </div>
-              <div className="p-4 pt-10 text-center">
-                <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  Barcha harakatlarni ko'rish
-                </button>
-              </div>
+              {
+                recentActivities.length > actionsMap &&
+                <div className='p-4 bg-gray-50 border-t border-gray-200 w-full absolute bottom-0'>
+                  <button
+                    onClick={() => setActionsMap(recentActivities.length)}
+                    className='cursor-pointer text-[18px] text-blue-600 hover:text-blue-800 font-medium flex gap-[3px] items-center'>
+                    Barcha harakatlarni ko'rish <ChevronRight className='size-5' />
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -157,17 +243,13 @@ function AdminMain() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Tezkor amallar</h3>
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+              <button onClick={() => navigate('clinic')} className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                 <span className="text-sm font-medium">Yangi klinika qo'shish</span>
                 <Building2 size={16} className="text-gray-400" />
               </button>
-              <button className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+              <button onClick={() => navigate('user')} className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                 <span className="text-sm font-medium">Shifokorlarni ko'rish</span>
                 <Stethoscope size={16} className="text-gray-400" />
-              </button>
-              <button className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <span className="text-sm font-medium">Hisobotlar</span>
-                <FileText size={16} className="text-gray-400" />
               </button>
             </div>
           </div>
@@ -190,31 +272,24 @@ function AdminMain() {
                   <span className="text-sm font-medium text-green-600">Bog'langan</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Backup</span>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                  <span className="text-sm font-medium text-yellow-600">6 soat oldin</span>
-                </div>
-              </div>
             </div>
           </div>
 
           {/* Quick Stats */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Bugungi statistika</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Umumiy statistika</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Yangi bemorlar</span>
-                <span className="text-sm font-bold text-blue-600">23</span>
+                <span className="text-sm text-gray-600">Jami Klinikalar soni</span>
+                <span className="text-sm font-bold text-blue-600">{stats.clinics.count}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Qabullar</span>
-                <span className="text-sm font-bold text-green-600">167</span>
+                <span className="text-sm text-gray-600">Jami Shifokorlar soni</span>
+                <span className="text-sm font-bold text-green-600">{stats.doctors.count}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Faol shifokorlar</span>
-                <span className="text-sm font-bold text-purple-600">89</span>
+                <span className="text-sm text-gray-600">Jami Bemorlar soni</span>
+                <span className="text-sm font-bold text-purple-600">{stats.patients.count}</span>
               </div>
             </div>
           </div>

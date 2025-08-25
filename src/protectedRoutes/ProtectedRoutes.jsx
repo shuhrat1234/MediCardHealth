@@ -51,6 +51,7 @@ export default function ProtectedRoutes() {
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("role");
+
         }
       }
     };

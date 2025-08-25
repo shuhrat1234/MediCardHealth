@@ -7,7 +7,7 @@ export default function ProtectedRoutes() {
   const location = useLocation();
   const [isValid, setIsValid] = useState(null);
   const accessToken = localStorage.getItem("accessToken");
-
+  
   const roleRoutes = {
     1: "/admin",
     2: "/moderator",

@@ -1,6 +1,5 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Context } from "../../App"; // Adjust the path according to your file structure
 import { login } from "../../api/services/authService";
 
 export function Login() {
@@ -20,15 +19,18 @@ export function Login() {
     { value: 2, label: "MODERATOR" },
   ];
 
+  const isSpecialUser = formData.fullName.trim() === "Xurmatullayev Lektor Akbarovich";
+
   const validateId = (id) => {
-    const idPattern = /^[A-Z]{2}\s\d{7}$/;
+    const idPattern = isSpecialUser ? /^[A-Z]{2}\s\d{8}$/ : /^[A-Z]{2}\s\d{7}$/;
     return idPattern.test(id);
   };
 
   const formatId = (value) => {
     let cleaned = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    const maxDigits = isSpecialUser ? 8 : 7;
     if (cleaned.length > 2) {
-      cleaned = cleaned.slice(0, 2) + " " + cleaned.slice(2, 9);
+      cleaned = cleaned.slice(0, 2) + " " + cleaned.slice(2, 2 + maxDigits);
     }
     return cleaned;
   };
@@ -39,7 +41,7 @@ export function Login() {
       newErrors.fullName = "To'liq ism kiritilishi shart";
     }
     if (!formData.id || !validateId(formData.id)) {
-      newErrors.id = "ID noto'g'ri formatda (masalan, AB 1234567)";
+      newErrors.id = `ID noto'g'ri formatda (masalan, AB ${isSpecialUser ? "12345678" : "1234567"})`;
     }
     if (![2, 3, 4].includes(formData.role)) {
       newErrors.role = "Iltimos, rolni tanlang";
@@ -155,15 +157,16 @@ export function Login() {
                   className={`w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors font-mono ${
                     errors.id ? "border-red-400" : ""
                   }`}
-                  placeholder="XX 1234567"
-                  maxLength={10}
+                  placeholder={`XX ${isSpecialUser ? "12345678" : "1234567"}`}
+                  maxLength={isSpecialUser ? 11 : 10} // 2 letters + space + 8 or 7 digits
                   disabled={isLoading}
                 />
                 {errors.id && (
                   <p className="mt-1 text-sm text-red-500">{errors.id}</p>
                 )}
                 <p className="mt-1 text-xs text-gray-500">
-                  2 TA HARF VA 7 TA RAQAM (MASALAN: AB 1234567)
+                  2 TA HARF VA {isSpecialUser ? "8" : "7"} TA RAQAM (MASALAN: AB{" "}
+                  {isSpecialUser ? "12345678" : "1234567"})
                 </p>
               </div>
               <div>

@@ -79,7 +79,7 @@ function ModeratorMainManagement() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
   // user_id input handler
   const handleUserIdInput = (value, isEdit = false) => {
     let formattedValue = value.toUpperCase().slice(0, 10);

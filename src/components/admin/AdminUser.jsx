@@ -12,6 +12,7 @@ function AdminUser() {
   const [doctors, setDoctors] = useState([]);
   const [patients, setPatients] = useState([]);
   const [moderators, setModerators] = useState([]);
+  const [moderatorToDelete, setModeratorToDelete] = useState(null); // Added state for deletion
 
   useEffect(() => {
     doctorGet().then((res) => setDoctors(res.data));
@@ -95,7 +96,12 @@ function AdminUser() {
 
         {/* Content Management Components */}
         <div>
-          {selectedRole === "moderator" && <ModeratorMainManagement />}
+          {selectedRole === "moderator" && (
+            <ModeratorMainManagement
+              moderators={moderators} // Pass moderators data
+              setModeratorToDelete={setModeratorToDelete} // Pass the setter function
+            />
+          )}
           {selectedRole === "doctor" && <ModeratorDoctorManagement />}
           {selectedRole === "patient" && <ModeratorPatientManagement />}
           {selectedRole === "clinic" && <ModeratorPatientManagement />}

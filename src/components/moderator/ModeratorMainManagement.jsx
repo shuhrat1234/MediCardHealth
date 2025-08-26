@@ -10,6 +10,7 @@ function ModeratorMainManagement() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedViewModerator, setSelectedViewModerator] = useState(null);
   const [selectedEditModerator, setSelectedEditModerator] = useState(null);
+  const [moderatorToDelete, setModeratorToDelete] = useState(null); // Added missing state
   const [searchTerm, setSearchTerm] = useState('');
   const [errors, setErrors] = useState({});
 
@@ -79,7 +80,7 @@ function ModeratorMainManagement() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   // user_id input handler
   const handleUserIdInput = (value, isEdit = false) => {
     let formattedValue = value.toUpperCase().slice(0, 10);
@@ -198,10 +199,7 @@ function ModeratorMainManagement() {
         moderator_profile: { ...prev.moderator_profile, [name]: name === 'fillial' ? value : value }
       }));
     } else {
-      setEditFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      setEditFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -241,7 +239,7 @@ function ModeratorMainManagement() {
 
   // delete-moderator
   const handleDelete = (moderator) => {
-    setModeratorToDelete(moderator);
+    setModeratorToDelete(moderator); // Line 244: Now defined
     setShowDeleteModal(true);
   };
 
@@ -334,16 +332,16 @@ function ModeratorMainManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{moderator?.experience || "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{moderator.moderator_profile?.experience || "Kiritilmagan"}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{moderator?.notes || "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{moderator.moderator_profile?.notes || "Kiritilmagan"}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{moderator?.fillial || "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{moderator.moderator_profile?.fillial || "Kiritilmagan"}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{moderator?.phone || "Kiritilmagan"}</div>
+                    <div className='text-sm text-gray-900'>{moderator.moderator_profile?.phone || "Kiritilmagan"}</div>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className={`w-[90px] h-[30px] flex justify-center items-center rounded-full text-sm text-white ${moderator.is_active ? 'bg-green-500' : 'bg-red-500'}`}>
@@ -643,8 +641,7 @@ function ModeratorMainManagement() {
                   <div className='flex items-center gap-3'>
                     <User className='w-5 h-5 text-gray-400' />
                     <div>
-                      <p className='text-xs text-gray-500'>User ID</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewModerator.user_id}</p>
+                      <p className='text-xs text-gray-500'>User IDansett<p className='font-medium text-sm text-gray-900'>{selectedViewModerator.user_id}</p></p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>

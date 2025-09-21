@@ -1,72 +1,33 @@
-import React, { useState } from 'react'
-import { Plus, Edit2, Trash2, Search, X, Save, Eye, Phone, Mail, MapPin, Calendar, Building, Users, Clock } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, Search, X, Save, Eye, Phone, Mail, MapPin, Calendar, Building, Users, Clock } from 'lucide-react';
+import { clinicGet, clinicPost, clinicPut, clinicDelete } from '../../api/services/clinicService';
 
 function ModeratorClinicManagement() {
-  const [clinics, setClinics] = useState([
-    {
-      id: 1,
-      name: 'Toshkent Tibbiyot Markazi',
-      address: 'Toshkent sh., Amir Temur ko\'chasi 25',
-      phone: '+998 71 123 45 67',
-      email: 'info@ttm.uz',
-      director: 'Karimov Akmal Bekovich',
-      foundedDate: '2010-03-15',
-      licenseNumber: 'CLINIC-2024-001',
-      workingHours: '08:00 - 20:00',
-      services: 'Kardiologiya, Nevrologiya, Jarrohlik',
-      capacity: 150,
-      status: 'Faol'
-    },
-    {
-      id: 2,
-      name: 'Samarqand Bolalar Shifoxonasi',
-      address: 'Samarqand sh., Registon ko\'chasi 12',
-      phone: '+998 66 234 56 78',
-      email: 'info@samarkand-pediatric.uz',
-      director: 'Abdullayeva Malika Ravshanovna',
-      foundedDate: '2015-09-10',
-      licenseNumber: 'CLINIC-2024-002',
-      workingHours: '24/7',
-      services: 'Pediatriya, Neonatologiya, Bolalar jarrohlik',
-      capacity: 80,
-      status: 'Faol'
-    },
-    {
-      id: 3,
-      name: 'Andijon Viloyat Shifoxonasi',
-      address: 'Andijon sh., Navoiy ko\'chasi 45',
-      phone: '+998 74 345 67 89',
-      email: 'info@andijan-hospital.uz',
-      director: 'Tursunov Bobur Alievich',
-      foundedDate: '2005-12-01',
-      licenseNumber: 'CLINIC-2024-003',
-      workingHours: '24/7',
-      services: 'Umumiy tibbiyot, Tez yordam, Jarrohlik',
-      capacity: 200,
-      status: 'Faol'
-    }
-  ])
-
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showModal, setShowModal] = useState(false)
-  const [editingClinic, setEditingClinic] = useState(null)
-  const [selectedClinic, setSelectedClinic] = useState(null)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [clinicToDelete, setClinicToDelete] = useState(null)
+  const [clinics, setClinics] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingClinic, setEditingClinic] = useState(null);
+  const [selectedClinic, setSelectedClinic] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [clinicToDelete, setClinicToDelete] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
     address: '',
     phone: '',
     email: '',
-    director: '',
+    director: '', // Maps to fio
+    user_id: '',
     foundedDate: '',
     licenseNumber: '',
     workingHours: '',
-    services: '',
+    services: '', // Maps to description
     capacity: '',
-    status: 'Faol'
-  })
+    status: 'Faol',
+    fillial: 1,
+  });
 
   const workingHoursOptions = [
     '08:00 - 18:00',
@@ -74,33 +35,130 @@ function ModeratorClinicManagement() {
     '09:00 - 19:00',
     '24/7',
     'Dushanba-Juma 08:00-18:00',
-    'Dushanba-Shanba 08:00-20:00'
-  ]
+    'Dushanba-Shanba 08:00-20:00',
+  ];
+
+  // Fetch clinics on component mount
+  useEffect(() => {
+    const fetchClinics = async () => {
+      try {
+        setLoading(true);
+        const response = await clinicGet();
+        // Map API response to component's expected structure
+        const mappedClinics = response.data.results.map(clinic => ({
+          id: clinic.id,
+          name: clinic.name,
+          address: clinic.address,
+          phone: clinic.phone,
+          email: clinic.email,
+          director: clinic.user.fio,
+          user_id: clinic.user.user_id,
+          is_active: clinic.user.is_active,
+          status: clinic.user.is_active ? 'Faol' : 'Nofaol',
+          services: clinic.description,
+          total_fillials: clinic.total_fillials,
+          total_doctors: clinic.total_doctors,
+          total_appointments: clinic.total_appointments,
+          pending_appointments: clinic.pending_appointments,
+          total_audit_logs: clinic.total_audit_logs,
+          // Maintain UI fields not in API response
+          foundedDate: clinic.foundedDate || '',
+          licenseNumber: clinic.licenseNumber || '',
+          workingHours: clinic.workingHours || '',
+          capacity: clinic.capacity || '',
+        }));
+        setClinics(mappedClinics);
+        setLoading(false);
+      } catch (err) {
+        setError(err.response?.data?.detail || 'Klinikalarni yuklashda xatolik yuz berdi.');
+        setLoading(false);
+        console.error('Error fetching clinics:', err);
+      }
+    };
+    fetchClinics();
+  }, []);
 
   const filteredClinics = clinics.filter(clinic =>
     clinic.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     clinic.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
     clinic.director.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  );
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (editingClinic) {
-      setClinics(clinics.map(clinic =>
-        clinic.id === editingClinic.id ? { ...formData, id: editingClinic.id } : clinic
-      ))
-    } else {
-      setClinics([...clinics, { ...formData, id: Date.now() }])
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate required fields
+    if (!formData.name || !formData.address || !formData.phone || !formData.email || !formData.director || !formData.user_id || !formData.capacity) {
+      alert('Iltimos, barcha majburiy maydonlarni to\'ldiring.');
+      return;
     }
-    resetForm()
-  }
+
+    // Structure data for POST/PUT request
+    const postData = {
+      fio: formData.director,
+      user_id: formData.user_id,
+      is_active: formData.status === 'Faol',
+      clinic_profile: {
+        name: formData.name,
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+        description: formData.services,
+        fillial: parseInt(formData.fillial, 10),
+      },
+    };
+
+    try {
+      // Send POST or PUT request
+      const response = editingClinic
+        ? await clinicPut(editingClinic.id, postData)
+        : await clinicPost(postData);
+
+      // Map response to local state format
+      const newClinic = {
+        id: editingClinic ? editingClinic.id : response.data.id || Date.now(),
+        name: formData.name,
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+        director: formData.director,
+        user_id: formData.user_id,
+        is_active: formData.status === 'Faol',
+        status: formData.status,
+        services: formData.services,
+        foundedDate: formData.foundedDate,
+        licenseNumber: formData.licenseNumber,
+        workingHours: formData.workingHours,
+        capacity: formData.capacity,
+        total_fillials: response.data.total_fillials || 0,
+        total_doctors: response.data.total_doctors || 0,
+        total_appointments: response.data.total_appointments || 0,
+        pending_appointments: response.data.pending_appointments || 0,
+        total_audit_logs: response.data.total_audit_logs || 0,
+      };
+
+      // Update local state
+      if (editingClinic) {
+        setClinics(clinics.map(clinic =>
+          clinic.id === editingClinic.id ? newClinic : clinic
+        ));
+      } else {
+        setClinics([...clinics, newClinic]);
+      }
+
+      resetForm();
+    } catch (error) {
+      console.error('Error saving clinic data:', error);
+      alert(error.response?.data?.detail || 'Klinika ma\'lumotlarini saqlashda xatolik yuz berdi.');
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -109,36 +167,67 @@ function ModeratorClinicManagement() {
       phone: '',
       email: '',
       director: '',
+      user_id: '',
       foundedDate: '',
       licenseNumber: '',
       workingHours: '',
       services: '',
       capacity: '',
-      status: 'Faol'
-    })
-    setEditingClinic(null)
-    setShowModal(false)
-  }
+      status: 'Faol',
+      fillial: 1,
+    });
+    setEditingClinic(null);
+    setShowModal(false);
+  };
 
   const handleEdit = (clinic) => {
-    setFormData(clinic)
-    setEditingClinic(clinic)
-    setShowModal(true)
-  }
+    setFormData({
+      name: clinic.name,
+      address: clinic.address,
+      phone: clinic.phone,
+      email: clinic.email,
+      director: clinic.director,
+      user_id: clinic.user_id,
+      foundedDate: clinic.foundedDate,
+      licenseNumber: clinic.licenseNumber,
+      workingHours: clinic.workingHours,
+      services: clinic.services,
+      capacity: clinic.capacity,
+      status: clinic.status,
+      fillial: clinic.total_fillials || 1,
+    });
+    setEditingClinic(clinic);
+    setShowModal(true);
+  };
 
   const handleDelete = (clinic) => {
-    setClinicToDelete(clinic)
-    setShowDeleteModal(true)
-  }
+    setClinicToDelete(clinic);
+    setShowDeleteModal(true);
+  };
 
-  const confirmDelete = () => {
-    setClinics(clinics.filter(clinic => clinic.id !== clinicToDelete.id))
-    setShowDeleteModal(false)
-    setClinicToDelete(null)
-  }
+  const confirmDelete = async () => {
+    try {
+      // Send DELETE request
+      await clinicDelete(clinicToDelete.id);
+      setClinics(clinics.filter(clinic => clinic.id !== clinicToDelete.id));
+      setShowDeleteModal(false);
+      setClinicToDelete(null);
+    } catch (error) {
+      console.error('Error deleting clinic:', error);
+      alert(error.response?.data?.detail || 'Klinikani o\'chirishda xatolik yuz berdi.');
+    }
+  };
 
   const handleView = (clinic) => {
-    setSelectedClinic(clinic)
+    setSelectedClinic(clinic);
+  };
+
+  if (loading) {
+    return <div className='text-center p-6'>Yuklanmoqda...</div>;
+  }
+
+  if (error) {
+    return <div className='text-center p-6 text-red-600'>{error}</div>;
   }
 
   return (
@@ -161,7 +250,7 @@ function ModeratorClinicManagement() {
             className='bg-[#3d99f5] hover:bg-[#2d89e5] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors'
           >
             <Plus className='w-5 h-5' />
-            Klinika qoshish
+            Klinika qo\'shish
           </button>
         </div>
 
@@ -292,12 +381,26 @@ function ModeratorClinicManagement() {
 
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      Direktor *
+                      Direktor (FIO) *
                     </label>
                     <input
                       type="text"
                       name="director"
                       value={formData.director}
+                      onChange={handleInputChange}
+                      required
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#3d99f5] focus:border-transparent'
+                    />
+                  </div>
+
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Foydalanuvchi ID *
+                    </label>
+                    <input
+                      type="text"
+                      name="user_id"
+                      value={formData.user_id}
                       onChange={handleInputChange}
                       required
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#3d99f5] focus:border-transparent'
@@ -329,6 +432,21 @@ function ModeratorClinicManagement() {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#3d99f5] focus:border-transparent'
+                    />
+                  </div>
+
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Filial raqami *
+                    </label>
+                    <input
+                      type="number"
+                      name="fillial"
+                      value={formData.fillial}
+                      onChange={handleInputChange}
+                      required
+                      min="1"
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#3d99f5] focus:border-transparent'
                     />
                   </div>
@@ -594,7 +712,7 @@ function ModeratorClinicManagement() {
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default ModeratorClinicManagement
+export default ModeratorClinicManagement;

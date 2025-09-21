@@ -13,6 +13,7 @@ export default function ProtectedRoutes() {
     2: "/moderator",
     3: "/doctor",
     4: "/user",
+    5: "/clinic",
   };
 
   useEffect(() => {

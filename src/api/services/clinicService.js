@@ -9,6 +9,21 @@ export const clinicDoctorGetById = (id) => {
   return axios.get(API.clinic.doctorId(id));
 };
 
+export const clinicPost = (data) =>{
+  return axios.post(API.clinic.clinics, data)
+}
+
+export const clinicPut = (id, data) =>{
+  return axios.post(API.clinic.clinicsId(id), data)
+}
+export const clinicDelete = (id) =>{
+  return axios.delete(API.clinic.clinicsId(id))
+}
+
+export const clinicGet = () =>{
+  return axios.get(API.clinic.clinics)
+}
+
 export const clinicServicesGet = (search) => {
   return axios.get(API.clinic.services, { params: { search } });
 };

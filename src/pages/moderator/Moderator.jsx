@@ -29,12 +29,13 @@ function Moderator() {
               path="doctormanagement"
               element={<ModeratorDoctorManagement />}
             />
+
             <Route
               path="patientmanagement"
               element={<ModeratorPatientManagement />}
             />
             <Route
-              path="clinicmanagement"
+              path="clinics"
               element={<ModeratorClinicManagement />}
             />
             <Route path="analytic" element={<ModeratorAnalytic />} />

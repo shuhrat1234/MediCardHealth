@@ -1,5 +1,6 @@
 import {
-    Home, Hospital, ChartNoAxesCombined, Calendar, FilePlus, IdCard, Settings, LogOut, Info, Clipboard as ClipboardIcon
+    Home, Hospital, ChartNoAxesCombined, Calendar, FilePlus, IdCard, Settings, LogOut, Info, Clipboard as ClipboardIcon,
+    HouseIcon
 
 } from 'lucide-react'
 
@@ -43,7 +44,22 @@ export const doctor = [
 export const moderator = [
     { icon: Home, label: 'Asosiy', path: '/moderator/' },
     { icon: ClipboardIcon, label: 'Shifokorlarni boshqarish', path: '/moderator/doctormanagement' },
+    { icon: HouseIcon, label: 'Klinikalar', path: '/moderator/clinics' },
     { icon: Calendar, label: 'Bemorlarni boshqarish', path: '/moderator/patientmanagement' },
+    // { icon: Hospital, label: 'Klinikalarni boshqarish', path: '/moderator/clinicmanagement' },
+    // { icon: ChartNoAxesCombined, label: 'Analitika', path: '/moderator/analytic' },
+    // { icon: Settings, label: 'Sozlamalar', path: '/moderator/setting' },
+    { icon: LogOut, label: 'Chiqish', path: '/login' },
+    // { icon: Info, label: 'Loyiha haqida', path: '/moderator/about ' },
+    // { icon: Info, label: 'Texnik yordam', path: '/moderator/support' }
+]
+
+
+
+export const clinic = [
+    { icon: Home, label: 'Asosiy', path: '/clinic/' },
+    { icon: ClipboardIcon, label: 'Shifokorlarni boshqarish', path: '/clinic/doctors' },
+    { icon: Calendar, label: 'Support', path: '/clinic/support' },
     // { icon: Hospital, label: 'Klinikalarni boshqarish', path: '/moderator/clinicmanagement' },
     // { icon: ChartNoAxesCombined, label: 'Analitika', path: '/moderator/analytic' },
     // { icon: Settings, label: 'Sozlamalar', path: '/moderator/setting' },

@@ -7,6 +7,7 @@ import Doctor from "./pages/doctor/Doctor";
 import Login from "./pages/login/Login";
 import ProtectedRoutes from "./protectedRoutes/ProtectedRoutes";
 import Page404 from "./pages/404/Page404";
+import Clinic from "./pages/clinic/Clinic";
 
 export const Context = createContext();
 
@@ -32,12 +33,12 @@ function App() {
               <Route path="/user/*" element={<User />} />
               <Route path="/admin/*" element={<Admin />} />
               <Route path="/doctor/*" element={<Doctor />} />
+              <Route path="/clinic/*" element={<Clinic />} />
 
               {/* Только если авторизован — показать 404 */}
               <Route path="*" element={<Page404 />} />
             </Route>
 
-            {/* Все остальные (если не авторизован) → редирект на логин */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>

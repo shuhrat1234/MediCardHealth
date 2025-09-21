@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Axios Instance
-const BASE_URL = "https://medicardbackend.uz.medicard.uz/";
+const BASE_URL = "http://127.0.0.1:8000/";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,

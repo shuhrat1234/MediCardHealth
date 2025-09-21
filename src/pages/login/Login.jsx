@@ -17,6 +17,7 @@ export function Login() {
     { value: 4, label: "BEMOR" },
     { value: 3, label: "SHIFOKOR" },
     { value: 2, label: "MODERATOR" },
+    { value: 5, label: "CLINIC" },
   ];
 
   const isSpecialUser = formData.fullName.trim() === "Xurmatullayev Lektor Akbarovich";
@@ -43,7 +44,7 @@ export function Login() {
     if (!formData.id || !validateId(formData.id)) {
       newErrors.id = `ID noto'g'ri formatda (masalan, AB ${isSpecialUser ? "12345678" : "1234567"})`;
     }
-    if (![2, 3, 4].includes(formData.role)) {
+    if (![2, 3, 4, 5].includes(formData.role)) {
       newErrors.role = "Iltimos, rolni tanlang";
     }
     setErrors(newErrors);
@@ -90,12 +91,13 @@ export function Login() {
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
       localStorage.setItem("role", role);
-
+      console.log(result)
       const rolePaths = {
         1: "/admin",
         2: "/moderator",
         3: "/doctor",
         4: "/user",
+        5: "/clinic",
       };
 
       navigate(rolePaths[role] || "/login");
@@ -173,7 +175,7 @@ export function Login() {
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   LOGINTYPE
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {roles.map((role) => (
                     <label
                       key={role.value}

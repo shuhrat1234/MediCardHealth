@@ -32,6 +32,13 @@ const API = {
   },
 
   clinic: {
+    clinics: "/clinic/clinics/",
+    clinicsId: (id)=> `/clinic/clinics/${id}/`,
+
+
+
+
+
     doctors: "/clinic/api/doctors/",
     doctorId: (id) => `/clinic/api/doctors/${id}/`,
 

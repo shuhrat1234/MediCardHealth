@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { admin } from '../../constants/sidebar'
+import { admin, clinic } from '../../constants/sidebar'
 import { user } from '../../constants/sidebar'
 import { doctor } from '../../constants/sidebar'
 import { moderator } from '../../constants/sidebar'
@@ -19,7 +19,8 @@ function Sidebar() {
         admin,
         moderator,
         user,
-        doctor
+        doctor,
+        clinic
     }
 
     const matchedArray = map[firstSliced]

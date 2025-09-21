@@ -332,24 +332,26 @@ function ModeratorPatientManagement() {
   };
 
   // filters-patient
-  const filteredPatients = patients.filter(
-    (patient) =>
-      patient.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.fio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.patient_profile?.phone
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      patient.patient_profile?.age
-        ?.toString()
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      patient.patient_profile?.gender
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      patient.patient_profile?.address
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
+  // const filteredPatients = patients?.filter(
+  //   (patient) =>
+  //     patient.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     patient.fio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     patient.patient_profile?.phone
+  //       ?.toLowerCase()
+  //       .includes(searchTerm.toLowerCase()) ||
+  //     patient.patient_profile?.age
+  //       ?.toString()
+  //       .toLowerCase()
+  //       .includes(searchTerm.toLowerCase()) ||
+  //     patient.patient_profile?.gender
+  //       ?.toLowerCase()
+  //       .includes(searchTerm.toLowerCase()) ||
+  //     patient.patient_profile?.address
+  //       ?.toLowerCase()
+  //       .includes(searchTerm.toLowerCase())
+  // );
+
+  console.log(`patients:`, patients)
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 font-sans">
@@ -375,7 +377,7 @@ function ModeratorPatientManagement() {
       </div>
 
       {/* Table Patient */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 overflow-x-scroll">
+      {/* <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 overflow-x-scroll">
         <table className="w-full table-auto">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
@@ -446,9 +448,8 @@ function ModeratorPatientManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div
-                      className={`w-[90px] h-[30px] flex justify-center items-center rounded-full text-sm text-white ${
-                        patient.is_active ? "bg-green-500" : "bg-red-500"
-                      }`}
+                      className={`w-[90px] h-[30px] flex justify-center items-center rounded-full text-sm text-white ${patient.is_active ? "bg-green-500" : "bg-red-500"
+                        }`}
                     >
                       {patient.is_active ? "Faol" : "No Faol"}
                     </div>
@@ -491,7 +492,7 @@ function ModeratorPatientManagement() {
             )}
           </tbody>
         </table>
-      </div>
+      </div> */}
 
       {/* Add Modal */}
       {showAddModal && (

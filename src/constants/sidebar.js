@@ -11,11 +11,11 @@ import {
 export const admin = [
     { icon: Home, label: 'Asosiy', path: '/admin/' },
     { icon: ClipboardIcon, label: 'Foydalanuvchilar', path: '/admin/user' },
-    // { icon: ClipboardIcon, label: 'Klinikalar', path: '/admin/clinic' },
-    // { icon: Settings, label: 'Sozlamalar', path: '/admin/setting' },
+    { icon: ClipboardIcon, label: 'Klinikalar', path: '/admin/clinic' },
+    { icon: Settings, label: 'Sozlamalar', path: '/admin/setting' },
     { icon: LogOut, label: 'Chiqish', path: '/login' },
-    // { icon: Info, label: 'Loyiha haqida', path: '/admin/about ' },
-    // { icon: Info, label: 'Texnik yordam', path: '/admin/support' }
+    { icon: Info, label: 'Loyiha haqida', path: '/admin/about ' },
+    { icon: Info, label: 'Texnik yordam', path: '/admin/support' }
 ]
 
 export const user = [

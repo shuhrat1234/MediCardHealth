@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Building2, Stethoscope, Activity, Clock, FileText, AlertCircle, ChevronRight } from 'lucide-react';
+import { Users, Building2, Stethoscope, Activity, Clock, FileText, AlertCircle, ChevronRight, ChevronDown } from 'lucide-react';
 import { doctorGet } from "../../api/services/doctorService";
 import { patientGet } from "../../api/services/patientService";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { fillialsGet } from '../../api/services/fillialsService';
 
 function AdminMain() {
   const navigate = useNavigate()
@@ -17,110 +18,27 @@ function AdminMain() {
   const [actionsMap, setActionsMap] = useState(5)
 
   const [recentActivities, setRecentActivities] = useState([
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
-    {
-      user_fio: "Admin User",
-      action: "doctor",
-      appointment_id: 101,
-      timestamp: new Date().toISOString(),
-      details: "Yangi shifokor qo‘shildi"
-    },
+    
   ]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [doctorRes, patientRes, actionsRes] = await Promise.all([
+        const [doctorRes, patientRes, clinicRes, actionsRes] = await Promise.all([
           doctorGet(),
           patientGet(),
-          axios.get('/recently-actions/')
+          fillialsGet()
         ]);
 
         setStats({
-          clinics: { count: 0, change: '+0' },
-          doctors: { count: doctorRes.data.length, change: '+0' },
-          patients: { count: patientRes.data.length, change: '+0' }
+          clinics: { count: clinicRes?.data?.count || 0, change: '+0' },
+          doctors: { count: doctorRes?.data?.count || 0, change: '+0' },
+          patients: { count: patientRes?.data?.count || 0, change: '+0' }
         });
 
         setRecentActivities(prev => [
           ...prev,
-          ...(Array.isArray(actionsRes.data) ? actionsRes.data : [])
+          ...(Array.isArray(actionsRes?.data) ? actionsRes.data : [])
         ])
 
       } catch (error) {
@@ -136,7 +54,7 @@ function AdminMain() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{count.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-gray-900">{(count ?? 0).toLocaleString()}</p>
           <p className="text-sm text-gray-500 mt-2">
             Bu oyda{' '}
             <span className="text-green-600 font-medium">{change} ta</span>
@@ -211,13 +129,13 @@ function AdminMain() {
         {/* Recent Activities */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md min-h-full">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-5 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">So'nggi harakatlar</h2>
-                <Activity size={20} className="text-gray-400" />
+                <h2 className="text-xl font-semibold text-gray-900">So'nggi harakatlar</h2>
+                <Activity size={25} className="text-gray-400" />
               </div>
             </div>
-            <div className="relative h-[585px] overflow-y-scroll p-2 overflow-x-hidden">
+            <div className="relative h-[485px] overflow-y-scroll p-2 overflow-x-hidden">
               <div className="space-y-1">
                 {recentActivities.slice(0, actionsMap).map((activity, index) => (
                   <ActivityItem key={index} activity={activity} />
@@ -225,11 +143,11 @@ function AdminMain() {
               </div>
               {
                 recentActivities.length > actionsMap &&
-                <div className='p-4 bg-gray-50 border-t border-gray-200 w-full absolute bottom-0'>
+                <div className='p-4 bg-gray-50 border-t border-gray-200 w-full absolute left-0 bottom-0'>
                   <button
                     onClick={() => setActionsMap(recentActivities.length)}
-                    className='cursor-pointer text-[18px] text-blue-600 hover:text-blue-800 font-medium flex gap-[3px] items-center'>
-                    Barcha harakatlarni ko'rish <ChevronRight className='size-5' />
+                    className='cursor-pointer text-[17px] text-blue-600 hover:text-blue-800 font-medium flex gap-[3px] items-center'>
+                    Barcha harakatlarni ko'rish <ChevronDown className='size-5' />
                   </button>
                 </div>
               }
@@ -238,7 +156,7 @@ function AdminMain() {
         </div>
 
         {/* Quick Actions & System Status */}
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Quick Actions */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Tezkor amallar</h3>

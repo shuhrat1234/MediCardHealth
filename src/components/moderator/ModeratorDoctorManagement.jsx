@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Plus, Eye, Edit, Trash2, Save, X, User, Phone, CalendarIcon, FileTextIcon, MapPin } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2, Save, X, User, Phone, CalendarIcon, FileTextIcon } from 'lucide-react';
 import { doctorDelete, doctorGet, doctorPost, doctorPut } from '../../api/services/doctorService';
 
 function ModeratorDoctorManagement() {
@@ -53,9 +53,19 @@ function ModeratorDoctorManagement() {
     try {
       const { data } = await doctorGet();
       console.log("Fetched doctors:", data);
-      setDoctors(data);
+      const validDoctors = data.results?.filter(
+        doctor => doctor && typeof doctor === 'object' && doctor.user_id && doctor.doctor_profile
+      ) || [];
+      console.log("Valid doctors:", validDoctors);
+      if (data.results?.length !== validDoctors.length) {
+        console.warn("Filtered out invalid doctors:", data.results?.filter(
+          doctor => !doctor || typeof doctor !== 'object' || !doctor.user_id || !doctor.doctor_profile
+        ));
+      }
+      setDoctors(validDoctors);
     } catch (error) {
       console.error("Error fetching doctors:", error.response?.data || error.message);
+      setDoctors([]);
     }
   };
 
@@ -66,7 +76,6 @@ function ModeratorDoctorManagement() {
   // form-validation
   const validateForm = (data) => {
     const newErrors = {};
-    // Validate user_id: 2 uppercase English letters, optional space, 7 digits
     if (!data.user_id.match(/^[A-Z]{2}\s?\d{7}$/)) {
       newErrors.user_id = "User ID format: 2 uppercase English letters, space, 7 digits (e.g., AB 1234567)";
     }
@@ -96,16 +105,10 @@ function ModeratorDoctorManagement() {
   // user_id input handler
   const handleUserIdInput = (value) => {
     let formattedValue = value.toUpperCase().slice(0, 10);
-    
-    // Remove non-English letters for first two characters
     formattedValue = formattedValue.replace(/[^A-Z]/g, (match, offset) => offset < 2 ? '' : match);
-    
-    // Add space after 2 letters if 3rd character is entered
     if (formattedValue.length > 2 && formattedValue[2] !== ' ') {
       formattedValue = formattedValue.slice(0, 2) + ' ' + formattedValue.slice(2);
     }
-    
-    // After space, allow only digits
     if (formattedValue.length > 3) {
       const parts = formattedValue.split(' ');
       if (parts[1]) {
@@ -113,7 +116,6 @@ function ModeratorDoctorManagement() {
         formattedValue = parts[0] + ' ' + parts[1];
       }
     }
-    
     return formattedValue;
   };
 
@@ -234,10 +236,7 @@ function ModeratorDoctorManagement() {
         doctor_profile: { ...prev.doctor_profile, [name]: value }
       }));
     } else {
-      setEditFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      setEditFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -304,14 +303,20 @@ function ModeratorDoctorManagement() {
   };
 
   // filters-doctor
-  const filteredDoctor = doctors.filter(doctor =>
-    doctor.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.fio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.doctor_profile?.specialty?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.doctor_profile?.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.doctor_profile?.experience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.doctor_profile?.schedule?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredDoctor = doctors?.filter(doctor => {
+    if (!doctor || !doctor.user_id || !doctor.doctor_profile) {
+      console.warn("Skipping invalid doctor:", doctor);
+      return false;
+    }
+    return (
+      !searchTerm ||
+      (doctor.user_id && doctor.user_id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (doctor.fio && doctor.fio.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (doctor.doctor_profile.specialty && doctor.doctor_profile.specialty.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (doctor.doctor_profile.experience && String(doctor.doctor_profile.experience).toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }) || [];
+  console.log("Filtered doctors:", filteredDoctor);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 font-sans">
@@ -352,65 +357,75 @@ function ModeratorDoctorManagement() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredDoctor.length > 0 ? (
-              filteredDoctor.map((doctor) => (
-                <tr key={doctor.user_id} className="hover:bg-gray-50 transition-colors duration-150">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>
-                      {doctor.user_id.replace(/([A-Z]{2})(\d{7})/, '$1 $2')}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='flex items-center'>
-                      <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>
-                        <User className='w-5 h-5 text-[#3d99f5]' />
+            {filteredDoctor?.length > 0 ? (
+              filteredDoctor.map((doctor) => {
+                if (
+                  !doctor.doctor_profile.specialty ||
+                  !doctor.doctor_profile.experience ||
+                  !doctor.doctor_profile.phone ||
+                  !doctor.doctor_profile.schedule
+                ) {
+                  console.warn(`Empty fields in doctor_profile for doctor ${doctor.user_id}:`, doctor.doctor_profile);
+                }
+                return (
+                  <tr key={doctor.user_id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className='text-sm text-gray-900'>
+                        {doctor.user_id.replace(/([A-Z]{2})(\d{7})/, '$1 $2')}
                       </div>
-                      <div className='ml-4'>
-                        <div className='text-sm font-medium text-gray-900'>{doctor.fio}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className='flex items-center'>
+                        <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center'>
+                          <User className='w-5 h-5 text-[#3d99f5]' />
+                        </div>
+                        <div className='ml-4'>
+                          <div className='text-sm font-medium text-gray-900'>{doctor.fio}</div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{doctor?.specialty || "Kiritilmagan"}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{doctor?.experience || "Kiritilmagan"}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{doctor?.phone.replace('=', '+') || "Kiritilmagan"}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className='text-sm text-gray-900'>{doctor?.schedule || "Kiritilmagan"}</div>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className={`w-[90px] h-[30px] flex justify-center items-center rounded-full text-sm text-white ${doctor.is_active ? 'bg-green-500' : 'bg-red-500'}`}>
-                      {doctor.is_active ? 'Faol' : 'No Faol'}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleView(doctor)}
-                        className="cursor-pointer p-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 rounded-md hover:bg-gray-100"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(doctor)}
-                        className="cursor-pointer p-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 rounded-md hover:bg-gray-100"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(doctor)}
-                        className="cursor-pointer p-2 text-gray-600 hover:text-red-600 transition-colors duration-200 rounded-md hover:bg-gray-100"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className='text-sm text-gray-900'>{doctor?.doctor_profile?.specialty || "Kiritilmagan"}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className='text-sm text-gray-900'>{doctor?.doctor_profile?.experience || "Kiritilmagan"}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className='text-sm text-gray-900'>{doctor?.doctor_profile?.phone?.replace('=', '+') || "Kiritilmagan"}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className='text-sm text-gray-900'>{doctor?.doctor_profile?.schedule || "Kiritilmagan"}</div>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <div className={`w-[90px] h-[30px] flex justify-center items-center rounded-full text-sm text-white ${doctor.is_active ? 'bg-green-500' : 'bg-red-500'}`}>
+                        {doctor.is_active ? 'Faol' : 'No Faol'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleView(doctor)}
+                          className="cursor-pointer p-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 rounded-md hover:bg-gray-100"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(doctor)}
+                          className="cursor-pointer p-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 rounded-md hover:bg-gray-100"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(doctor)}
+                          className="cursor-pointer p-2 text-gray-600 hover:text-red-600 transition-colors duration-200 rounded-md hover:bg-gray-100"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan="8" className="text-center py-8 text-gray-500">
@@ -725,35 +740,35 @@ function ModeratorDoctorManagement() {
                     <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Mutaxassislik</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.specialty || "Kiritilmagan"}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.doctor_profile?.specialty || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Tajriba (yil)</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.experience || "Kiritilmagan"}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.doctor_profile?.experience || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <FileTextIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Haqida</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.bio || "Kiritilmagan"}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.doctor_profile?.bio || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <Phone className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Telefon raqam</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.phone || "Kiritilmagan"}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.doctor_profile?.phone || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>
                     <CalendarIcon className='w-5 h-5 text-gray-400' />
                     <div>
                       <p className='text-xs text-gray-500'>Ish jadvali</p>
-                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.schedule || "Kiritilmagan"}</p>
+                      <p className='font-medium text-sm text-gray-900'>{selectedViewDoctor?.doctor_profile?.schedule || "Kiritilmagan"}</p>
                     </div>
                   </div>
                   <div className='flex items-center gap-3'>

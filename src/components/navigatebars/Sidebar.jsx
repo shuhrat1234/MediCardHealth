@@ -23,7 +23,6 @@ function Sidebar() {
     }
 
     const matchedArray = map[firstSliced]
-    console.log(matchedArray)
 
     // Split navigation items into groups
     const mainNavItems = matchedArray?.slice(0, 5) || []

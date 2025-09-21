@@ -31,6 +31,18 @@ const API = {
     fillialsId: (user_id) => `/fillials/${user_id}/`,
   },
 
+  clinic: {
+    doctors: "/clinic/api/doctors/",
+    doctorId: (id) => `/clinic/api/doctors/${id}/`,
+
+    services: "/clinic/api/services/",
+    serviceId: (id) => `/clinic/api/services/${id}/`,
+
+    serviceAddToFillial: (id, fillial_id) =>
+      `/clinic/api/services/${id}/add_to_fillial/?fillial_id=${fillial_id}`,
+    serviceRemoveFromFillial: (id, fillial_id) =>
+      `/clinic/api/services/${id}/remove_from_fillial/?fillial_id=${fillial_id}`,
+  },
 };
 
 export default API;

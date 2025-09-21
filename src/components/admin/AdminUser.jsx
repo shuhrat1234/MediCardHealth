@@ -12,12 +12,12 @@ function AdminUser() {
   const [doctors, setDoctors] = useState([]);
   const [patients, setPatients] = useState([]);
   const [moderators, setModerators] = useState([]);
-  const [moderatorToDelete, setModeratorToDelete] = useState(null); // Added state for deletion
+  const [moderatorToDelete, setModeratorToDelete] = useState(null);
 
   useEffect(() => {
-    doctorGet().then((res) => setDoctors(res.data));
-    patientGet().then((res) => setPatients(res.data));
-    moderatorGet().then((res) => setModerators(res.data));
+    doctorGet().then((res) => setDoctors(res.data?.results || []));
+    patientGet().then((res) => setPatients(res.data?.results || []));
+    moderatorGet().then((res) => setModerators(res.data?.results || []));
   }, []);
 
   const total = doctors.length + patients.length + moderators.length;
@@ -98,13 +98,13 @@ function AdminUser() {
         <div>
           {selectedRole === "moderator" && (
             <ModeratorMainManagement
-              moderators={moderators} // Pass moderators data
-              setModeratorToDelete={setModeratorToDelete} // Pass the setter function
+              moderators={moderators}
+              setModeratorToDelete={setModeratorToDelete}
             />
           )}
           {selectedRole === "doctor" && <ModeratorDoctorManagement />}
           {selectedRole === "patient" && <ModeratorPatientManagement />}
-          {selectedRole === "clinic" && <ModeratorPatientManagement />}
+          {/* {selectedRole === "clinic" && <ModeratorPatientManagement />} */}
         </div>
       </div>
     </div>

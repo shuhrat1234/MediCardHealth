@@ -17,6 +17,6 @@ export const fillialsDelete = (user_id) => {
   return axios.delete(API.fillials.fillialsId(user_id));
 };
 
-export const fillialsPut = (user_id) => {
-  return axios.put(API.fillials.fillialsId(user_id));
+export const fillialsPut = (user_id, data) => {
+  return axios.put(API.fillials.fillialsId(user_id), data);
 };

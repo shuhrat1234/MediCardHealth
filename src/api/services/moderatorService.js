@@ -20,4 +20,3 @@ export const moderatorDelete = (user_id) => {
 export const moderatorPut = (user_id) => {
   return axios.put(API.moderator.moderatorId(user_id));
 };
-
